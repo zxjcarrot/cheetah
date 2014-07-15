@@ -293,7 +293,6 @@ static int select_poll(struct reactor * r, struct timeval * timeout){
 		}
 	}
 	
-	el_lock_unlock(r->lock);
 
 	return nreadys;
 }

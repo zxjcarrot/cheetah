@@ -81,7 +81,6 @@ static void init_heap_entry(struct heap_entry * phe, struct event * e){
 	el_gettimeofday(&phe->expiration);
 	timer_add(phe->expiration, e->fd);
 	phe->e = e;
-	LOG("exp: %d", timer_to_ms(phe->expiration));
 }
 
 static inline int timerheap_empty(struct timerheap_internal * pti){
@@ -106,9 +105,9 @@ int timerheap_top_expired(struct reactor * r){
 struct timeval * timerheap_top_timeout(struct reactor * r){
 	struct timeval cur;
 	static struct timeval timeout;
+	int i;
 	assert(r != NULL);
 	assert(r->pti != NULL);
-	LOG("pti->size: %d", r->pti->size);
 	if(timerheap_empty(r->pti)){
 		return NULL;
 	}
@@ -151,7 +150,6 @@ struct event * timerheap_pop_top(struct reactor * r){
 		LOG("failed to remove timer.");
 		return NULL;
 	}
-	LOG("pe->timeout: %d", pe->fd);
 	return pe;
 }
 
@@ -168,7 +166,7 @@ static void timerheap_heapify_bottomup(struct timerheap_internal * pti, int idx)
 
 	parent = idx >> 1;
 
-	while(parent && timer_g(heap[parent].expiration, he.expiration)){
+	while(parent && timer_ge(heap[parent].expiration, he.expiration)){
 		heap[idx] = heap[parent];
 		heap[idx].e->timerheap_idx = idx;
 		idx = parent;
@@ -179,7 +177,7 @@ static void timerheap_heapify_bottomup(struct timerheap_internal * pti, int idx)
 	heap[idx].e->timerheap_idx = idx;
 }
 
-inline void timerheap_add_time_and_heapify(struct reactor * r, struct event * e){
+inline void timerheap_reset_timer(struct reactor * r, struct event * e){
 	assert(r != NULL);
 	assert(e != NULL);
 
@@ -187,20 +185,21 @@ inline void timerheap_add_time_and_heapify(struct reactor * r, struct event * e)
 	timerheap_heapify_topdown(r->pti, e->timerheap_idx);
 }
 static void timerheap_heapify_topdown(struct timerheap_internal * pti, int idx){
-	int child, i;
+	int child, i, size;
 	struct heap_entry * heap;
 	struct heap_entry he;
 
 	assert(pti != NULL);
 	assert(idx > 0 && idx <= pti->size);
 
+	size = pti->size;
 	heap = pti->heap;
 	he = heap[idx];
 
-	for(i = idx; (i << 1) <= pti->size; i = child){
+	for(i = idx; i<= (size >> 1); i = child){
 		child = i << 1;
 
-		if(child + 1 <= pti->size &&
+		if(child + 1 <= size &&
 			 timer_g(heap[child].expiration, heap[child + 1].expiration))
 			++child;
 
@@ -233,11 +232,10 @@ int timerheap_add_event(struct reactor * r, struct event * e){
 		return (-1);
 	}
 
-	++pti->size;
 	/* 
 	* Initialize the heap_entry and heapfiy the heap.
 	*/
-	init_heap_entry(&pti->heap[pti->size], e);
+	init_heap_entry(&pti->heap[++pti->size], e);
 	timerheap_heapify_bottomup(pti, pti->size);
 
 	return (0);
@@ -245,6 +243,7 @@ int timerheap_add_event(struct reactor * r, struct event * e){
 
 int timerheap_remove_event(struct reactor * r, struct event * e){
 	struct timerheap_internal * pti;
+	struct heap_entry *heap;
 	assert(r != NULL);
 	assert(r->pti != NULL);
 	assert(e != NULL);
@@ -254,12 +253,12 @@ int timerheap_remove_event(struct reactor * r, struct event * e){
 		return (-1);
 	}
 	pti = r->pti;
-
+	heap = pti->heap;
 	/* 
 	* Fills in the entry being removed with the
 	* rearest entry and heapify the heap.
 	*/
-	pti->heap[e->timerheap_idx] = pti->heap[pti->size--];
+	heap[e->timerheap_idx] = heap[pti->size--];
 
 	/*
 	* We might encounter that the @e is the rearest
@@ -268,7 +267,6 @@ int timerheap_remove_event(struct reactor * r, struct event * e){
 	*/
 	if(e->timerheap_idx <= pti->size)
 		timerheap_heapify_topdown(pti, e->timerheap_idx);
-	//LOG("pti->size: %d", pti->size);
 	e->timerheap_idx = E_OUT_OF_TIMERHEAP;
 	return (0);
 }
@@ -296,4 +294,3 @@ int timerheap_destroy(struct reactor * r){
 
 	return (0);
 }
-

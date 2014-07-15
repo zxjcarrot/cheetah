@@ -73,7 +73,7 @@ static void reactor_handle_timer(struct reactor * r){
 		if(e->ev_flags & E_ONCE && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
 			timerheap_remove_event(r, e);
 		}else if(!(e->ev_flags & E_ONCE) && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
-			timerheap_add_time_and_heapify(r, e);
+			timerheap_reset_timer(r, e);
 		}
 	}
 }
@@ -326,7 +326,6 @@ inline int reactor_add_event(struct reactor * r, struct event * e){
 				LOG("failed to register timer event");
 				return (-1);
 			}
-			LOG("Asserting r->pti->size == size + 1");
 			assert(r->pti->size == size + 1);
 			assert(e->timerheap_idx != E_OUT_OF_TIMERHEAP);
 		}
@@ -385,7 +384,6 @@ inline int reactor_remove_event(struct reactor * r, struct event * e){
 	assert(r != NULL && e != NULL);
 
 	el_lock_lock(r->lock);
-
 	if(e->ev_flags & E_SIGNAL || e->ev_flags & E_TIMEOUT){
 		/* Signal or timer event unregistration */
 		if(e->ev_flags & E_SIGNAL && e->ev_flags & E_TIMEOUT){
@@ -406,7 +404,6 @@ inline int reactor_remove_event(struct reactor * r, struct event * e){
 				LOG("failed to unregister time event");
 				return (-1);
 			}
-			LOG("Asserting r->pti->size == size - 1");
 			assert(r->pti->size == size - 1);
 			assert(e->timerheap_idx == E_OUT_OF_TIMERHEAP);
 		}
@@ -517,7 +514,6 @@ inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags
 				pt = &t;
 			}
 		}
-		LOG("timeout: %dms", pt ? pt->tv_sec * 1000 + pt->tv_usec / 1000 : NULL);
 		nreadys = r->policy->poll(r, pt);
 		//LOG("stopped polling, got %d readys", nreadys);
 		if(r->pti){

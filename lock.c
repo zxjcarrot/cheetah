@@ -22,6 +22,7 @@
 */
 #include "cheetah/lock.h"
 #include "cheetah/log.h"
+static int count = 0;
 
 inline int el_lock_init(el_lock * lock){
 	if(!lock)return 0;
@@ -46,7 +47,7 @@ inline void el_lock_unlock(el_lock * lock){
 	if(!lock)return;
 	#ifdef WIN32
 		LeaveCriticalSection(lock);
-	#else
+	#else 
 		pthread_mutex_unlock(lock);
 	#endif
 }

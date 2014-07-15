@@ -283,16 +283,10 @@ static int epoll_poll(struct reactor * r, struct timeval * timeout){
 	struct event * e;
 
 	assert(r != NULL);
-	if(r == NULL){
-		LOG_EXIT(1, "r is null!!");
-	}
 
 	pei = r->policy_data;
 	
 	assert(pei != NULL);
-	if(pei == NULL){
-		LOG_EXIT(1, "pei is null");
-	}
 
 	el_lock_unlock(r->lock);
 	nreadys = epoll_wait(pei->epoll_fd,
@@ -323,8 +317,6 @@ static int epoll_poll(struct reactor * r, struct timeval * timeout){
 			}
 		}
 	}
-
-	el_lock_unlock(r->lock);
 
 	return nreadys;
 }

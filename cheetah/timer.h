@@ -152,7 +152,7 @@ struct event * timerheap_pop_top(struct reactor * r);
 * @r: the reactor which handles the timer events.
 * @e: the timer event being manipulated.
 */
-inline void timerheap_add_time_and_heapify(struct reactor * r, struct event * e);
+inline void timerheap_reset_timer(struct reactor * r, struct event * e);
 /*
 * Heapify the timerheap in a top-down way after
 * alteration of the heap with the @idxth entry being the top entry.

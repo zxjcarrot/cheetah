@@ -30,6 +30,7 @@
 	#include <pthread.h> //for pthread_mutex
 #endif
 
+
 inline int el_lock_init(el_lock * lock);
 inline void el_lock_lock(el_lock * lock);
 inline void el_lock_unlock(el_lock * lock);

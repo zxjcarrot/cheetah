@@ -60,10 +60,8 @@ void sig_handler(int sig){
 struct signal_internal * signal_internal_init(struct reactor * r){
 	struct signal_internal *ret ;
 	assert(r != NULL);
-	if(r == NULL){
-		LOG("r is null!!");
-		return NULL;
-	}else if(current_reactor && current_reactor != r){
+	
+	if(current_reactor && current_reactor != r){
 		LOG("Only one reactor can handle signal events.");
 		return NULL;
 	}

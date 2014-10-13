@@ -85,7 +85,7 @@ run_once(void){
 	return (&te);
 }
 
-int main(int argc, char const *argv[]){
+int main(int argc, char * const * argv){
 	struct rlimit rl;
 	int i, c;
 	struct timeval *tv;

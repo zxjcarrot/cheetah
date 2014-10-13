@@ -71,4 +71,7 @@ int signal_internal_register(struct reactor * r, int sig, struct event * e);
 * @sig: the signal to unregitser.
 */
 int signal_internal_unregister(struct reactor * r, int sig);
+
+int signal_internal_restore_all(struct reactor * r);
+
 #endif

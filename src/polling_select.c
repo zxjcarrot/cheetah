@@ -19,9 +19,8 @@
 * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 * DATA, OR PROFITS; OR BUSINESS INTERR
-* /
+*/
 /* select polling policy */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -62,6 +61,17 @@ static int select_poll(struct reactor * r, struct timeval * timeout);
 static void select_destroy(struct reactor * r);
 static void select_print(struct reactor * r);
 
+struct polling_policy select_policy = {
+	"select",
+	select_init,
+	select_add,
+	select_del,
+	select_poll,
+	select_destroy,
+	select_print
+};
+
+struct polling_policy * pselect_policy = &select_policy;
 /*
 * Resize the fd_sets to given size.
 * Return value: 0 on success, -1 on failure.

@@ -79,40 +79,10 @@ struct reactor{
 };
 
 /*
-* The signal event callback used to call corresponding signal event callbacks.
-*/
-static void reactor_signal_callback(el_socket_t fd, short res_flags, void *arg);
-
-/*
-* The timer event callback used to call timer events that are expired;
-*/
-static void reactor_timer_callback(el_socket_t fd, short res_flags, void *arg);
-/*
-* The default callback got called after reactor being waked up.
-*/
-inline static void reactor_waked_up(el_socket_t fd, short res_flags, void *arg);
-
-/*
-* Wake up the polling thread.
-* @r: the reactor to wake up
-*/
-inline static void reactor_wake_up(struct reactor * r);
-
-/*
 * Wake up the polling thread and tell the reactor to get out the loop.
 * @r: the reactor to wake up.
 */
 inline void reactor_get_out(struct reactor * r);
-
-/*
-* Initialize the reactor.
-* @r: the reactor to be initialized.
-* @policy_name: the name of polling policy.
-* @in_mt: indicates whether this application is used in multithreaded environment.
-* @handle_sig: indicates whether the reactor handles signal events.
-* @handle_timer: indicates whether the reactor handles timer events.
-*/
-static void reactor_init_(struct reactor * r, const char * policy_name, int in_mt, int handle_sig, int handle_timer);
 
 /*
 * Wrapper function for the initialization of reactor with normal functionality(I/O).
@@ -171,23 +141,6 @@ inline void reactor_init_with_mt_timer(struct reactor * r, const char * policy_n
 inline void reactor_init_with_mt_signal_timer(struct reactor * r, const char * policy_name);
 
 /*
-* Frees up event_list
-* @r: the reactor
-*/
-static inline void reactor_free_events(struct reactor * r);
-
-/*
-* Frees up pending_list
-* @r: the reactor
-*/
-static inline void reactor_free_pending(struct reactor * r);
-
-/*
-* Frees up event hash table
-* @r: the reactor
-*/
-static inline void reactor_free_hash(struct reactor * r);
-/*
 * Frees up resources related to the reactor.
 * @r: the reactor to destroy.
 */
@@ -218,20 +171,6 @@ inline int reactor_add_to_pending(struct reactor * r, struct event * e, short re
 inline int reactor_remove_event(struct reactor * r, struct event * e);
 
 /*
-* Dequeue a event from pending list.
-* Return: the dequeued event or null if the list is empty.
-* @r: the reactor.
-*/
-static inline struct event * reactor_dequeue_pending(struct reactor * r);
-
-/*
-* Dequeue a event from event list.
-* Return: the dequeued event or null if the list is empty.
-* @r: the reactor.
-*/
-static inline struct event * reactor_dequeue_event(struct reactor * r);
-
-/*
 * Test whether the given reactor has no event.
 * @r: the reactor to test.
 */
@@ -243,7 +182,6 @@ inline int reactor_event_empty(struct reactor * r);
 * @timeout: The time after which pollling policy will return.
 */
 inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags);
-
 
 #ifdef __cplusplus
 }

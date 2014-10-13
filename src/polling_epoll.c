@@ -19,16 +19,16 @@
 * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 * DATA, OR PROFITS; OR BUSINESS INTERR
-* /
+*/
 /* epoll polling policy */
 #include <sys/errno.h>
 #include <sys/epoll.h>
 #include <assert.h>
+#include <memory.h>
 
 #include "cheetah/polling_policy.h"
 #include "cheetah/includes.h"
 #include "cheetah/log.h"
-
 
 #define EPOLL_INIT_EVENT_SIZE 32
 
@@ -46,6 +46,17 @@ static int epoll_poll(struct reactor * r, struct timeval * timeout);
 static void epoll_destroy(struct reactor * r);
 static void epoll_print(struct reactor * r);
 
+
+struct polling_policy epoll_policy = {
+	"epoll",
+	epoll_init,
+	epoll_add,
+	epoll_del,
+	epoll_poll,
+	epoll_destroy,
+	epoll_print
+};
+struct polling_policy * pepoll_policy = &epoll_policy;
 /*
 * Resize the events to given size.
 * Return: -1 on failure, 0 on success.
@@ -159,7 +170,7 @@ static inline short epoll_setup_mask(short flags){
 	return ret;
 }
 
-static int epoll_print_error(struct epoll_internal * pei, el_socket_t fd){
+static void epoll_print_error(struct epoll_internal * pei, el_socket_t fd){
 	if(errno == EBADF){
 		LOG("[epoll_fd %d]or [fd %d]is not valid!!", pei->epoll_fd, fd);
 	}else if(errno == ENOENT){
@@ -277,7 +288,7 @@ static int epoll_del(struct reactor * r, el_socket_t fd, short flags){
 * @timeout: the time after which the select will return.
 */
 static int epoll_poll(struct reactor * r, struct timeval * timeout){
-	int res_flags , nreadys, fd, i;
+	int res_flags , nreadys, i;
 	struct epoll_internal * pei;
 	struct event * e;
 

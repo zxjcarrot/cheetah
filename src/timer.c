@@ -31,6 +31,15 @@
 #include "cheetah/event.h"
 #include "cheetah/utility.h"
 
+/*
+* Heapify the timerheap in a top-down way after
+* alteration of the heap with the @idxth entry being the top entry.
+* This function is used when deleting a entry from the heap.
+* @pti: The related timerheap_internal structure.
+* @idx: The top entry's index.
+*/
+static void timerheap_heapify_topdown(struct timerheap_internal * pti, int idx);
+
 struct timerheap_internal * timerheap_internal_init(){
 	struct timerheap_internal * ret;
 	struct heap_entry * heap;
@@ -51,6 +60,11 @@ struct timerheap_internal * timerheap_internal_init(){
 	return ret;
 }
 
+/*
+* Expand the timerheap to be big enough to hold @size entries.
+* Return: 0 on success, -1 on failure.
+* @pti: the timerheap_internal to expand.
+*/
 static int timerheap_grow(struct timerheap_internal * pti, int size){
 	int new_cap;
 	struct heap_entry * new_heap;
@@ -73,7 +87,11 @@ static int timerheap_grow(struct timerheap_internal * pti, int size){
 	LOG("expanded to %d.", pti->capacity);
 	return (0);
 }
-
+/*
+* Initialize the heap entry with timer event.
+* Return: a newly created heap_entry on success, NULL on failure.
+* @e: the event to be bound to the the entry.
+*/
 static void init_heap_entry(struct heap_entry * phe, struct event * e){
 	assert(phe != NULL);
 	assert(e != NULL);
@@ -83,6 +101,11 @@ static void init_heap_entry(struct heap_entry * phe, struct event * e){
 	phe->e = e;
 }
 
+/*
+* Tests whether the heap is empty.
+* Return: 0 if the heap has entries, 1 if the heap is empty.
+* @pti: The related timerheap_internal structure.
+*/
 static inline int timerheap_empty(struct timerheap_internal * pti){
 	assert(pti != NULL);
 	return pti->size == 0;
@@ -105,7 +128,7 @@ int timerheap_top_expired(struct reactor * r){
 struct timeval * timerheap_top_timeout(struct reactor * r){
 	struct timeval cur;
 	static struct timeval timeout;
-	int i;
+
 	assert(r != NULL);
 	assert(r->pti != NULL);
 	if(timerheap_empty(r->pti)){
@@ -133,7 +156,6 @@ struct event * timerheap_get_top(struct reactor * r){
 
 struct event * timerheap_pop_top(struct reactor * r){
 	struct timerheap_internal * pti;
-	struct heap_entry * phe;
 	struct event * pe;
 	assert(r != NULL);
 	assert(r->pti != NULL);
@@ -153,8 +175,15 @@ struct event * timerheap_pop_top(struct reactor * r){
 	return pe;
 }
 
+/*
+* Heapify the timerheap in a bottom-up way after 
+* alteration of the heap with the @idxth entry being the bottom entry.
+* This function is used when inserting a entry to the heap.
+* @pti: The related timerheap_internal structure.
+* @idx: The top entry's index.
+*/
 static void timerheap_heapify_bottomup(struct timerheap_internal * pti, int idx){
-	int parent, i;
+	int parent;
 	struct heap_entry * heap;
 	struct heap_entry he;
 
@@ -184,6 +213,7 @@ inline void timerheap_reset_timer(struct reactor * r, struct event * e){
 	init_heap_entry(&r->pti->heap[e->timerheap_idx], e);
 	timerheap_heapify_topdown(r->pti, e->timerheap_idx);
 }
+
 static void timerheap_heapify_topdown(struct timerheap_internal * pti, int idx){
 	int child, i, size;
 	struct heap_entry * heap;
@@ -271,6 +301,11 @@ int timerheap_remove_event(struct reactor * r, struct event * e){
 	return (0);
 }
 
+/*
+* Free up resources used by the timerhea.
+* Return: 0 on success, -1 on failure.
+* @pti: The related timerheap_internal structure.
+*/
 static int timerheap_free(struct timerheap_internal * pti){
 	assert(pti != NULL);
 

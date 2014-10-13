@@ -20,11 +20,11 @@
 * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
-/* 
 /* poll polling policy */
 #include <sys/errno.h>
 #include <poll.h>
 #include <assert.h>
+#include <memory.h>
 
 #include "cheetah/polling_policy.h"
 #include "cheetah/includes.h"
@@ -65,6 +65,16 @@ static int poll_poll(struct reactor * r, struct timeval * timeout);
 static void poll_destroy(struct reactor * r);
 static void poll_print(struct reactor * r);
 
+struct polling_policy poll_policy = {
+	"epoll",
+	poll_init,
+	poll_add,
+	poll_del,
+	poll_poll,
+	poll_destroy,
+	poll_print
+};
+struct polling_policy * ppoll_policy = &poll_policy;
 /*
 * Resize the fds to given size.
 * Return: -1 on failure, 0 on success.
@@ -208,6 +218,8 @@ static int poll_add(struct reactor * r, el_socket_t fd, short flags){
 	ppi->fds_in[i].events = poll_setup_mask(flags);
 	ppi->need_rememcp = 1;;
 	++ppi->n_events;
+
+	return (0);
 }
 
 static inline void poll_swap_pollfd(struct pollfd * lhs, struct pollfd * rhs){
@@ -258,7 +270,7 @@ static int poll_del(struct reactor * r, el_socket_t fd, short flags){
 * @timeout: the time after which the poll will return.
 */
 static int poll_poll(struct reactor * r, struct timeval * timeout){
-	int res_flags , nreadys, fd;
+	int res_flags , nreadys;
 	struct poll_internal * ppi;
 	struct event * e;
 	int i;

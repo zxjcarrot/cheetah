@@ -30,7 +30,6 @@
 static FILE * fp;
 static int counter;
 static char log_filename[64];
-static char time_fmt[64];
 
 void __log_file_print(char * filename, const char * func, int line, const char *fmt, ...){
 	time_t t;
@@ -50,7 +49,7 @@ void __log_file_print(char * filename, const char * func, int line, const char *
 		exit(0);
 	}
 	fprintf(fp, "%s ", ctime(&t));
-	fprintf(fp, "[%s]:[%s]:[line: %d][tid %u]: ", filename, func, line, (unsigned int)pthread_self());
+	fprintf(fp, "[%s]:[%s]:[line: %d]: ", filename, func, line);
 	
 	
 	va_start(list, fmt);
@@ -67,7 +66,7 @@ void __log_stderr_print(char * filename, const char * func, int line, const char
 
 	time(&t);
 	fprintf(stderr, "%s ", ctime(&t));
-	fprintf(stderr, "[%s]:[%s]:[line %d][tid %u]: ", filename, func, line, (unsigned int)pthread_self());
+	fprintf(stderr, "[%s]:[%s]:[line %d]: ", filename, func, line);
 	
 
 	va_start(list, fmt);

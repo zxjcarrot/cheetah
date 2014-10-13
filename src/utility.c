@@ -20,6 +20,7 @@
 * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
+#include <string.h>
 #include "cheetah/includes.h"
 #include "cheetah/utility.h"
 

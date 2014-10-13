@@ -22,7 +22,6 @@
 */
 #include "cheetah/lock.h"
 #include "cheetah/log.h"
-static int count = 0;
 
 inline int el_lock_init(el_lock * lock){
 	if(!lock)return 0;

@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS= -O0 -g
+CFLAGS= -O0 -g -Wall -Werror
 INCLUDE= cheetah
 OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o bench.o
 PROGRAM= cheetah_exec
@@ -21,8 +21,8 @@ lock.o: $(INCLUDE)/lock.h lock.c
 log.o: 	$(INCLUDE)/log.h log.c
 	$(CC) $(CFLAGS) -c log.c
 
-polling_policy.o: $(INCLUDE)/polling_policy.h polling_policy.c
-	$(CC) $(CFLAGS) -c polling_policy.c polling_select.c polling_poll.c polling_epoll.c
+polling_policy.o: $(INCLUDE)/polling_policy.h polling_policy.c polling_select.c polling_poll.c polling_epoll.c
+	$(CC) $(CFLAGS) -c polling_select.c polling_poll.c polling_epoll.c polling_policy.c
 
 reactor.o: $(INCLUDE)/reactor.h reactor.c
 	$(CC) $(CFLAGS) -c reactor.c

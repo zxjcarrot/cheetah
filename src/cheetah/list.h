@@ -42,15 +42,6 @@ struct list_head{
 inline void INIT_LIST_HEAD(struct list_head *list);
 
 inline void INIT_LIST_EMPTY(struct list_head *list);
-/*
- * Insert a new entry between two known consecutive entries.
- *
- * This is only for internal list manipulation where we know
- * the prev/next entries already!
- */
-static inline void __list_add(struct list_head *new,
-			      struct list_head *prev,
-			      struct list_head *next);
 
 /**
  * list_add_tail - add a new entry
@@ -71,15 +62,6 @@ inline void list_add(struct list_head *new, struct list_head *head);
  * This is useful for implementing queues.
  */
 inline void list_add_tail(struct list_head *new, struct list_head *head);
-
-/*
- * Delete a list entry by making the prev/next entries
- * point to each other.
- *
- * This is only for internal list manipulation where we know
- * the prev/next entries already!
- */
-static inline void __list_del(struct list_head * prev, struct list_head * next);
 
 /**
  * list_del - deletes entry from list.

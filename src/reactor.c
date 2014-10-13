@@ -36,6 +36,42 @@
 
 extern struct polling_policy polling_policies[];
 
+/*
+* Initialize the reactor.
+* @r: the reactor to be initialized.
+* @policy_name: the name of polling policy.
+* @in_mt: indicates whether this application is used in multithreaded environment.
+* @handle_sig: indicates whether the reactor handles signal events.
+* @handle_timer: indicates whether the reactor handles timer events.
+*/
+static void reactor_init_(struct reactor * r, const char * policy_name, int in_mt, int handle_sig, int handle_timer);
+
+/*
+* Dequeue a event from event list.
+* Return: the dequeued event or null if the list is empty.
+* @r: the reactor.
+*/
+static inline struct event * reactor_dequeue_event(struct reactor * r);
+
+/*
+* Initialize signal events handling mechanism.
+* Return: 0 on success, -1 on failure.
+* @r: the related reactor.
+*/
+static inline int reacotr_signal_init(struct reactor * r);
+
+/*
+* Initialize timer events handling mechanism.
+* Return: 0 on success, -1 on failure.
+* @r: the related reactor.
+*/
+inline int reactor_timer_init(struct reactor * r);
+
+/*
+* The signal event callback used to call corresponding signal event callbacks.
+*/
+static void reactor_signal_callback(el_socket_t fd, short res_flags, void *arg);
+
 static void reactor_signal_callback(el_socket_t fd, short res_flags, void *arg){
 	struct reactor * r;
 	struct event * e;
@@ -76,14 +112,20 @@ static void reactor_handle_timer(struct reactor * r){
 		}
 	}
 }
-
-inline static void reactor_waked_up(el_socket_t fd, short res_flags, void *arg){
+/*
+* The default callback got called after reactor being waked up.
+*/
+static inline void reactor_waked_up(el_socket_t fd, short res_flags, void *arg){
 	//LOG("woke up.");
 	int n;
 	char buf[1024];
 	while((n = read(fd, buf, sizeof(buf))) > 0);
 }
 
+/*
+* Wake up the polling thread.
+* @r: the reactor to wake up
+*/
 inline static void reactor_wake_up(struct reactor * r){
 	assert(r != NULL);
 
@@ -202,10 +244,14 @@ inline void reactor_init_with_mt_signal_timer(struct reactor * r, const char * p
 	reactor_init_(r, policy_name, 1, 1, 1);
 }
 
+/*
+* Frees up event_list
+* @r: the reactor
+*/
 static inline void reactor_free_events(struct reactor * r){
 	struct event * e = NULL;
 
-	while(e = reactor_dequeue_event(r)){
+	while((e = reactor_dequeue_event(r))){
 		if(r->policy->del(r, e->fd, e->ev_flags) == -1){
 			LOG("failed to remove the event[%d] from the reactor.", e->fd);
 		}
@@ -219,7 +265,10 @@ static inline void reactor_free_events(struct reactor * r){
 	}
 }
 
-
+/*
+* Frees up event hash table
+* @r: the reactor
+*/
 static inline void reactor_free_hash(struct reactor * r){
 	event_ht_free(&r->eht);
 }
@@ -266,24 +315,24 @@ inline void reactor_destroy(struct reactor * r){
 	free(r->lock);
 }
 
-inline int reacotr_signal_init(struct reactor * r){
+static inline int reacotr_signal_init(struct reactor * r){
 	if((r->psi = signal_internal_init(r)) == NULL){
-		LOG("failed on signal_internal_init");
+		LOG_EXIT(1, "failed on signal_internal_init");
 		return (-1);
 	}
 
 	if(el_create_pipe(r->sig_pipe) == -1){
-		LOG(1, "failed to create signal informing pipe.");
+		LOG_EXIT(1, "failed to create signal informing pipe.");
 	}
 
 	/* set the pipe to nonblocking mode */
 	if(el_set_nonblocking(r->sig_pipe[0]) < 0 || el_set_nonblocking(r->sig_pipe[1]) < 0){
-		LOG(1, "failed to set the pipe to nonblocking mode.");
+		LOG_EXIT(1, "failed to set the pipe to nonblocking mode.");
 		return (-1);
 	}
 
 	if((r->sig_pe = event_new(r->sig_pipe[0], E_READ, reactor_signal_callback, r)) == NULL){
-		LOG(1, "failed to create event for signal events handling");
+		LOG_EXIT(1, "failed to create event for signal events handling");
 		return (-1);
 	}
 
@@ -292,6 +341,11 @@ inline int reacotr_signal_init(struct reactor * r){
 	return (0);
 }
 
+/*
+* Initialize timer events handling mechanism.
+* Return: 0 on success, -1 on failure.
+* @r: the related reactor.
+*/
 inline int reactor_timer_init(struct reactor * r){
 	if((r->pti = timerheap_internal_init(r)) == NULL){
 		LOG("failed on timerheap_internal_init: %s", strerror(errno));
@@ -440,8 +494,15 @@ inline int reactor_remove_event(struct reactor * r, struct event * e){
 	reactor_wake_up(r);
 
 	el_lock_unlock(r->lock);
+
+	return (0);
 }
 
+/*
+* Dequeue a event from pending list.
+* Return: the dequeued event or null if the list is empty.
+* @r: the reactor.
+*/
 static inline struct event * reactor_dequeue_pending(struct reactor * r){
 	struct list_head * node;
 	struct event * e;
@@ -508,7 +569,7 @@ inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags
 			* have @pt point to the smallest timeval.
 			*/
 			struct timeval * timerv = timerheap_top_timeout(r);
-			if(timerv && (pt == NULL || pt && timer_s(*timerv, *pt))){
+			if(timerv && (pt == NULL || (pt && timer_s(*timerv, *pt)))){
 				t = *timerv;
 				pt = &t;
 			}
@@ -521,7 +582,7 @@ inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags
 		}
 		if(nreadys){
 			//iterate through pending events and call corresponding callbacks
-			while(e = reactor_dequeue_pending(r)){
+			while((e = reactor_dequeue_pending(r))){
 				if(e->callback){
 					el_lock_unlock(r->lock);
 

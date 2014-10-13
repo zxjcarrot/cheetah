@@ -21,6 +21,7 @@
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
 #include <stdlib.h>
+#include <string.h>
 
 #include "cheetah/event_ht.h"
 #include "cheetah/list.h"
@@ -180,7 +181,6 @@ inline void event_ht_delete_by_key(struct event_ht * ht, unsigned key){
 }
 
 inline int event_ht_delete(struct event_ht * ht, struct event * e){
-	struct list_head *p;
 
 	if(e->hash_link.prev == NULL || e->hash_link.next == NULL){
 		/*

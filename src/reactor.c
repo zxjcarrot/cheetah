@@ -130,7 +130,10 @@ inline static void reactor_wake_up(struct reactor * r){
 	assert(r != NULL);
 
 	char octet = 0;
-	write(r->pipe[1], &octet, sizeof(octet));
+	int  n = 0;
+
+	n = write(r->pipe[1], &octet, sizeof(octet));
+	assert(n > 0);
 }
 
 inline void reactor_get_out(struct reactor * r){

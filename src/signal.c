@@ -48,12 +48,15 @@ static struct reactor * current_reactor;
 
 void sig_handler(int sig){
 	assert(current_reactor != NULL);
+	int n;
 	if(current_reactor == NULL){
 		LOG("current_reactor is null!!");
 		return;
 	}
 
-	write(current_reactor->sig_pipe[1], &sig, 1);
+	n =write(current_reactor->sig_pipe[1], &sig, 1);
+
+	assert(n > 0);
 }
 
 

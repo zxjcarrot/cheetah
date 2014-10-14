@@ -1,11 +1,11 @@
 CC= gcc
-CFLAGS= -O0 -g -Wall -Werror
+CFLAGS= -O2 -g -Wall -Werror -fpic -shared
 INCLUDE= cheetah
-OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o bench.o
-PROGRAM= cheetah_exec
+OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o
+PROGRAM= libcheetah.so
 LIBS= -lpthread
-bench.o:
-	$(CC) $(CFLAGS)  -c bench.c
+#bench.o:
+#	$(CC) $(CFLAGS)  -c bench.c
 	
 event.o: $(INCLUDE)/event.h event.c
 	$(CC) $(CFLAGS) -c event.c
@@ -39,6 +39,11 @@ utility.o: $(INCLUDE)/utility.h utility.c
 
 all:	$(OBJECTS)
 	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS)
+
 clean:
 	rm *.o 
 	rm $(PROGRAM)
+
+install:
+	cp -r $(INCLUDE) 	/usr/include
+	cp $(PROGRAM) 		/usr/lib

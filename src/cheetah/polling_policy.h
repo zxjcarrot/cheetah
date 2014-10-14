@@ -75,6 +75,28 @@ struct polling_policy{
 	void	(*print)(struct reactor * r);
 };
 
+
+void * epoll_init(struct reactor * r);
+int epoll_add(struct reactor * r, el_socket_t fd, short flags);
+int epoll_del(struct reactor * r, el_socket_t fd, short flags);
+int epoll_poll(struct reactor * r, struct timeval * timeout);
+void epoll_destroy(struct reactor * r);
+void epoll_print(struct reactor * r);
+
+
+void * poll_init(struct reactor * r);
+int poll_add(struct reactor * r, el_socket_t fd, short flags);
+int poll_del(struct reactor * r, el_socket_t fd, short flags);
+int poll_poll(struct reactor * r, struct timeval * timeout);
+void poll_destroy(struct reactor * r);
+void poll_print(struct reactor * r);
+
+void * select_init(struct reactor * r);
+int select_add(struct reactor * r, el_socket_t fd, short flags);
+int select_del(struct reactor * r, el_socket_t fd, short flags);
+int select_poll(struct reactor * r, struct timeval * timeout);
+void select_destroy(struct reactor * r);
+void select_print(struct reactor * r);
 #ifdef __cplusplus
 }
 #endif

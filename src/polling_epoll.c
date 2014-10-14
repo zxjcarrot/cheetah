@@ -39,24 +39,6 @@ struct epoll_internal{
 	struct epoll_event * events;
 };
 
-static void * epoll_init(struct reactor * r);
-static int epoll_add(struct reactor * r, el_socket_t fd, short flags);
-static int epoll_del(struct reactor * r, el_socket_t fd, short flags);
-static int epoll_poll(struct reactor * r, struct timeval * timeout);
-static void epoll_destroy(struct reactor * r);
-static void epoll_print(struct reactor * r);
-
-
-struct polling_policy epoll_policy = {
-	"epoll",
-	epoll_init,
-	epoll_add,
-	epoll_del,
-	epoll_poll,
-	epoll_destroy,
-	epoll_print
-};
-struct polling_policy * pepoll_policy = &epoll_policy;
 /*
 * Resize the events to given size.
 * Return: -1 on failure, 0 on success.
@@ -86,7 +68,7 @@ static int epoll_resize(struct epoll_internal * pei, int size){
 * Return value: newly created internal data on success, NULL on failure.
 * @r: the reactor which uses this policy.
 */
-static void * epoll_init(struct reactor * r){
+void * epoll_init(struct reactor * r){
 	struct epoll_internal * ret;
 
 	assert(r);
@@ -144,7 +126,7 @@ static void epoll_free(struct epoll_internal * pei){
 * Clean up the policy internal data
 * @r: the reactor which uses this policy
 */
-static void epoll_destroy(struct reactor * r){
+void epoll_destroy(struct reactor * r){
 	assert(r != NULL);
 	if(r == NULL){
 		LOG("r is null!!");
@@ -194,7 +176,7 @@ static void epoll_print_error(struct epoll_internal * pei, el_socket_t fd){
 * @fd: the file descriptor to listen.
 * @flags: the interested events.
 */
-static int epoll_add(struct reactor * r, el_socket_t fd, short flags){
+int epoll_add(struct reactor * r, el_socket_t fd, short flags){
 	struct epoll_internal * pei;
 	struct epoll_event e;
 	int ret;
@@ -251,7 +233,7 @@ static int epoll_add(struct reactor * r, el_socket_t fd, short flags){
 * @fd: the file descriptor to remove.
 * @flags: the interested events.
 */
-static int epoll_del(struct reactor * r, el_socket_t fd, short flags){
+int epoll_del(struct reactor * r, el_socket_t fd, short flags){
 	struct epoll_internal * pei;
 	struct epoll_event e;
 	int ret;
@@ -287,7 +269,7 @@ static int epoll_del(struct reactor * r, el_socket_t fd, short flags){
 * @r: the reactor which uses this policy.
 * @timeout: the time after which the select will return.
 */
-static int epoll_poll(struct reactor * r, struct timeval * timeout){
+int epoll_poll(struct reactor * r, struct timeval * timeout){
 	int res_flags , nreadys, i;
 	struct epoll_internal * pei;
 	struct event * e;
@@ -331,6 +313,6 @@ static int epoll_poll(struct reactor * r, struct timeval * timeout){
 	return nreadys;
 }
 /* Dumps out the internal data of select policy for debugging. */
-static void epoll_print(struct reactor * r){
+void epoll_print(struct reactor * r){
 	LOG("empty implementation of epoll_print.");
 }

@@ -58,23 +58,6 @@ struct poll_internal{
 	struct pollfd *fds_in;
 };
 
-static void * poll_init(struct reactor * r);
-static int poll_add(struct reactor * r, el_socket_t fd, short flags);
-static int poll_del(struct reactor * r, el_socket_t fd, short flags);
-static int poll_poll(struct reactor * r, struct timeval * timeout);
-static void poll_destroy(struct reactor * r);
-static void poll_print(struct reactor * r);
-
-struct polling_policy poll_policy = {
-	"epoll",
-	poll_init,
-	poll_add,
-	poll_del,
-	poll_poll,
-	poll_destroy,
-	poll_print
-};
-struct polling_policy * ppoll_policy = &poll_policy;
 /*
 * Resize the fds to given size.
 * Return: -1 on failure, 0 on success.
@@ -106,7 +89,7 @@ static int poll_resize(struct poll_internal * ppi, int size){
 * Return value: newly created internal data on success, NULL on failure.
 * @r: the reactor which uses this policy.
 */
-static void * poll_init(struct reactor * r){
+void * poll_init(struct reactor * r){
 	struct poll_internal * ret;
 	assert(r != NULL);
 	if(r == NULL){
@@ -157,7 +140,7 @@ static void poll_free(struct poll_internal * ppi){
 * Clean up the policy internal data
 * @r: the reactor which uses this policy
 */
-static void poll_destroy(struct reactor * r){
+void poll_destroy(struct reactor * r){
 	assert(r != NULL);
 	if(r == NULL){
 		LOG("r is null!!");
@@ -185,7 +168,7 @@ static inline short poll_setup_mask(short flags){
 * @fd: the file descriptor to listen.
 * @flags: the interested events.
 */
-static int poll_add(struct reactor * r, el_socket_t fd, short flags){
+int poll_add(struct reactor * r, el_socket_t fd, short flags){
 	struct poll_internal * ppi;
 	int i;
 	assert(r != NULL);
@@ -235,7 +218,7 @@ static inline void poll_swap_pollfd(struct pollfd * lhs, struct pollfd * rhs){
 * @fd: the file descriptor to remove.
 * @flags: the interested events.
 */
-static int poll_del(struct reactor * r, el_socket_t fd, short flags){
+int poll_del(struct reactor * r, el_socket_t fd, short flags){
 	struct poll_internal * ppi;
 	int i;
 
@@ -269,7 +252,7 @@ static int poll_del(struct reactor * r, el_socket_t fd, short flags){
 * @r: the reactor which uses this policy.
 * @timeout: the time after which the poll will return.
 */
-static int poll_poll(struct reactor * r, struct timeval * timeout){
+int poll_poll(struct reactor * r, struct timeval * timeout){
 	int res_flags , nreadys;
 	struct poll_internal * ppi;
 	struct event * e;
@@ -345,7 +328,7 @@ static int poll_poll(struct reactor * r, struct timeval * timeout){
 }
 
 /* Dumps out the internal data of poll policy for debugging. */
-static void poll_print(struct reactor * r){
+void poll_print(struct reactor * r){
 	int i;
 	struct poll_internal * ppi = r->policy_data;
 

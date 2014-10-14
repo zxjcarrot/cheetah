@@ -6,6 +6,7 @@ PROGRAM= cheetah_exec
 LIBS= -lpthread
 bench.o:
 	$(CC) $(CFLAGS)  -c bench.c
+	
 event.o: $(INCLUDE)/event.h event.c
 	$(CC) $(CFLAGS) -c event.c
 
@@ -39,4 +40,5 @@ utility.o: $(INCLUDE)/utility.h utility.c
 all:	$(OBJECTS)
 	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS)
 clean:
-	rm *.o
+	rm *.o 
+	rm $(PROGRAM)

@@ -21,11 +21,30 @@
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
 #include "cheetah/polling_policy.h"
-extern struct polling_policy * pepoll_policy;
-extern struct polling_policy * ppoll_policy;
-extern struct polling_policy * pselect_policy;
-
-struct polling_policy * polling_policies[] = {pepoll_policy,
-											  pepoll_policy,
-											  pepoll_policy,
-											  NULL};
+#include "polling_epoll.c"
+#include "polling_poll.c"
+#include "polling_select.c"
+struct polling_policy polling_policies[] = {
+											{"epoll",
+											epoll_init,
+											epoll_add,
+											epoll_del,
+											epoll_poll,
+											epoll_destroy,
+											epoll_print},
+											{"poll",
+											poll_init,
+											poll_add,
+											poll_del,
+											poll_poll,
+											poll_destroy,
+											poll_print},
+											{"select",
+											select_init,
+											select_add,
+											select_del,
+											select_poll,
+											select_destroy,
+											select_print},
+											{NULL}
+											};

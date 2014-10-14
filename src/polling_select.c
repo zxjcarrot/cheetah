@@ -54,24 +54,6 @@ struct select_internal{
 	fd_set *writeset_out;
 };
 
-static void * select_init(struct reactor * r);
-static int select_add(struct reactor * r, el_socket_t fd, short flags);
-static int select_del(struct reactor * r, el_socket_t fd, short flags);
-static int select_poll(struct reactor * r, struct timeval * timeout);
-static void select_destroy(struct reactor * r);
-static void select_print(struct reactor * r);
-
-struct polling_policy select_policy = {
-	"select",
-	select_init,
-	select_add,
-	select_del,
-	select_poll,
-	select_destroy,
-	select_print
-};
-
-struct polling_policy * pselect_policy = &select_policy;
 /*
 * Resize the fd_sets to given size.
 * Return value: 0 on success, -1 on failure.
@@ -152,7 +134,7 @@ static int select_free(struct select_internal * psi){
 * Return value: newly created internal data on success, NULL on failure.
 * @r: the reactor which uses this policy.
 */
-static void * select_init(struct reactor * r){
+void * select_init(struct reactor * r){
 	struct select_internal * ret;
 
 	assert(r != NULL);
@@ -182,7 +164,7 @@ static void * select_init(struct reactor * r){
 * @fd: the file descriptor to listen.
 * @flags: the interested events.
 */
-static int select_add(struct reactor * r, el_socket_t fd, short flags){
+int select_add(struct reactor * r, el_socket_t fd, short flags){
 	struct select_internal * psi;
 	assert(r != NULL);
 	if(r == NULL){
@@ -233,7 +215,7 @@ static int select_add(struct reactor * r, el_socket_t fd, short flags){
 * @fd: the file descriptor to remove.
 * @flags: the interested events.
 */
-static int select_del(struct reactor * r, el_socket_t fd, short flags){
+int select_del(struct reactor * r, el_socket_t fd, short flags){
 	struct select_internal * psi;
 
 	assert(r != NULL);
@@ -263,7 +245,7 @@ static int select_del(struct reactor * r, el_socket_t fd, short flags){
 * @r: the reactor which uses this policy.
 * @timeout: the time after which the select will return.
 */
-static int select_poll(struct reactor * r, struct timeval * timeout){
+int select_poll(struct reactor * r, struct timeval * timeout){
 	int res_flags , nreadys, fd;
 	struct select_internal * psi;
 	struct event * e;
@@ -311,14 +293,14 @@ static int select_poll(struct reactor * r, struct timeval * timeout){
 * Clean up the policy internal data
 * @r: the reactor which uses this policy
 */
-static void select_destroy(struct reactor * r){
+void select_destroy(struct reactor * r){
 	assert(r != NULL);
 
 	select_free(r->policy_data);
 }
 
 /* Dumps out the internal data of select policy for debugging. */
-static void select_print(struct reactor * r){
+void select_print(struct reactor * r){
 	int i;
 	struct select_internal * psi = r->policy_data;
 

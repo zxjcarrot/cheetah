@@ -53,8 +53,8 @@ struct event{
 	struct list_head pending_link;
 	struct list_head hash_link;
 	/* 
-	* For I/O events, fd stores the file descriptor being listening.
-	* For signal events, fd stores the signal number being listening.
+	* For I/O events, fd stores the file descriptor being listened.
+	* For signal events, fd stores the signal number being listened.
 	* For timer events, fd stores the timer interval in millisecond.
 	*/
 	el_socket_t fd;
@@ -76,8 +76,8 @@ struct event{
 
 /*
 * Create and initialize a event.
-* For I/O events, fd stores the file descriptor being listening.
-* For signal events, fd stores the signal number being listening.
+* For I/O events, fd stores the file descriptor being listened.
+* For signal events, fd stores the signal number being listened.
 * For timer events, fd stores the timer interval in millisecond.
 * Return the newly created event.
 * @fd: the file descriptor to listen
@@ -89,8 +89,8 @@ inline struct event * event_new(el_socket_t fd, short ev_flags,event_callback ca
 
 /*
 * Initialize a given event.
-* For I/O events, fd stores the file descriptor being listening.
-* For signal events, fd stores the signal number being listening.
+* For I/O events, fd stores the file descriptor being listened.
+* For signal events, fd stores the signal number being listened.
 * For timer events, fd stores the timer interval in millisecond.
 * @e: event to initialize
 * @fd: the file descriptor to listen

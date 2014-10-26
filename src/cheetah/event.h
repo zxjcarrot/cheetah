@@ -85,7 +85,7 @@ struct event{
 * @call_back: the function to call when the specific events has occured
 * @arg: call_back data
 */
-inline struct event * event_new(el_socket_t fd, short ev_flags,event_callback callback, void * arg);
+struct event * event_new(el_socket_t fd, short ev_flags,event_callback callback, void * arg);
 
 /*
 * Initialize a given event.
@@ -98,14 +98,14 @@ inline struct event * event_new(el_socket_t fd, short ev_flags,event_callback ca
 * @call_back: the function to call when the specific events has occured
 * @arg: call_back data
 */
-inline void event_set(struct event * e, el_socket_t fd, short ev_flags,event_callback callback, void * arg);
+void event_set(struct event * e, el_socket_t fd, short ev_flags,event_callback callback, void * arg);
 
 /*
 * Tests whether the event is in the reactor.
 * Return: 0 for false, 1 for true.
 * @e: event to test.
 */
-inline int event_in_reactor(struct event * e);
+int event_in_reactor(struct event * e);
 #ifdef __cplusplus
 }
 #endif

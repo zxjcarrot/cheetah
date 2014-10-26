@@ -82,76 +82,76 @@ struct reactor{
 * Wake up the polling thread and tell the reactor to get out the loop.
 * @r: the reactor to wake up.
 */
-inline void reactor_get_out(struct reactor * r);
+void reactor_get_out(struct reactor * r);
 
 /*
 * Wrapper function for the initialization of reactor with normal functionality(I/O).
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init(struct reactor * r, const char * policy_name);
+void reactor_init(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with multithreading supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_mt(struct reactor * r, const char * policy_name);
+void reactor_init_with_mt(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with signal events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_signal(struct reactor * r, const char * policy_name);
+void reactor_init_with_signal(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with timer events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_timer(struct reactor * r, const char * policy_name);
+void reactor_init_with_timer(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with signal and timer events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_signal_timer(struct reactor * r, const char * policy_name);
+void reactor_init_with_signal_timer(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with multithreading and signal events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_mt_signal(struct reactor * r, const char * policy_name);
+void reactor_init_with_mt_signal(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with multithreading and timer events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_mt_timer(struct reactor * r, const char * policy_name);
+void reactor_init_with_mt_timer(struct reactor * r, const char * policy_name);
 
 /*
 * Wrapper function for the initialization of reactor with multithreading, signal and timer events supported.
 * @r: the reactor to be initialized.
 * @policy_name: the name of polling policy.
 */
-inline void reactor_init_with_mt_signal_timer(struct reactor * r, const char * policy_name);
+void reactor_init_with_mt_signal_timer(struct reactor * r, const char * policy_name);
 
 /*
 * Frees up resources related to the reactor.
 * @r: the reactor to destroy.
 */
-inline void reactor_destroy(struct reactor * r);
+void reactor_destroy(struct reactor * r);
 /*
 * Add a event to the reactor.
 * Return: 0 on success, -1 if the event is already in the reactor.
 * @r: the reactor.
 * @e: event to be added.
 */
-inline int reactor_add_event(struct reactor * r, struct event * e);
+int reactor_add_event(struct reactor * r, struct event * e);
 
 /*
 * Add a active event to the pending list waiting for processing.
@@ -160,7 +160,7 @@ inline int reactor_add_event(struct reactor * r, struct event * e);
 * @e: the event to add.
 * @res_flags: The events have been set after polling.
 */
-inline int reactor_add_to_pending(struct reactor * r, struct event * e, short res_flags);
+int reactor_add_to_pending(struct reactor * r, struct event * e, short res_flags);
 
 /*
 * Remove a event from the reactor.
@@ -168,20 +168,20 @@ inline int reactor_add_to_pending(struct reactor * r, struct event * e, short re
 * @r: the reactor.
 * @e: event to be removed.
 */
-inline int reactor_remove_event(struct reactor * r, struct event * e);
+int reactor_remove_event(struct reactor * r, struct event * e);
 
 /*
 * Test whether the given reactor has no event.
 * @r: the reactor to test.
 */
-inline int reactor_event_empty(struct reactor * r);
+int reactor_event_empty(struct reactor * r);
 
 /*
 * Start the reactor.
 * @r: the reactor to start.
 * @timeout: The time after which pollling policy will return.
 */
-inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags);
+void reactor_loop(struct reactor * r, struct timeval * timeout, int flags);
 
 #ifdef __cplusplus
 }

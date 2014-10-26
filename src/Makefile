@@ -1,9 +1,10 @@
 CC= gcc
-CFLAGS= -O2 -g -Wall -Werror -fpic -shared
+CFLAGS= -O2 -g -Wall -Werror
 INCLUDE= cheetah
 OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o
 PROGRAM= libcheetah.so
 LIBS= -lpthread
+LINKER_FLAGS= -fpic -shared
 #bench.o:
 #	$(CC) $(CFLAGS)  -c bench.c
 	
@@ -38,7 +39,7 @@ utility.o: $(INCLUDE)/utility.h utility.c
 	$(CC) $(CFLAGS) -c utility.c
 
 all:	$(OBJECTS)
-	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) -o $(PROGRAM) $(OBJECTS)
 
 clean:
 	rm *.o 

@@ -36,7 +36,7 @@
 	#define LOG_TO_STDERR
 	#if (defined(LOG_TO_FILE) && defined(LOG_TO_STDERR))
 		#define LOG(...)\
-			__log_file_print(__FILE__, __func__, __LINE__, __VA_ARGS__);		\
+			__log_file_print(__FILE__, __func__, __LINE__, __VA_ARGS__);	\
 			__log_stderr_print(__FILE__, __func__, __LINE__, __VA_ARGS__);	\
 
 		#define LOG_EXIT(ret, ...)\

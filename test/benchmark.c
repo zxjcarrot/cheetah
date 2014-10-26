@@ -44,8 +44,7 @@ void read_cb(el_socket_t fd, short res_flags, void * arg){
 	++count;
 }
 
-static struct timeval *
-run_once(void){
+static struct timeval * run_once(void){
 	el_socket_t *cp, space;
 	long i;
 	static struct timeval ts, te;

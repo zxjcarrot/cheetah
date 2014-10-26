@@ -45,23 +45,23 @@ inline void INIT_LIST_EMPTY(struct list_head *list);
 
 /**
  * list_add_tail - add a new entry
- * @new: new entry to be added
+ * @new_entry: new entry to be added
  * @head: list head to add it before
  *
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-inline void list_add(struct list_head *new, struct list_head *head);
+inline void list_add(struct list_head *new_entry, struct list_head *head);
 
 /**
  * list_add_tail - add a new entry
- * @new: new entry to be added
+ * @new_entry: new entry to be added
  * @head: list head to add it before
  *
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-inline void list_add_tail(struct list_head *new, struct list_head *head);
+inline void list_add_tail(struct list_head *new_entry, struct list_head *head);
 
 /**
  * list_del - deletes entry from list.

@@ -65,7 +65,7 @@ inline int event_ht_init(struct event_ht * ht, double load_factor);
 * @event: &struct event entry to be inserted
 * @key: hash key
 */
-inline int event_ht_insert(struct event_ht * ht, struct  event * new, unsigned key);
+inline int event_ht_insert(struct event_ht * ht, struct  event * new_entry, unsigned key);
 
 /*
 * Insert a event into the hash table. 
@@ -74,7 +74,7 @@ inline int event_ht_insert(struct event_ht * ht, struct  event * new, unsigned k
 * @event: &struct event entry to be inserted
 * @key: hash key
 */
-inline int event_ht_insert_replace(struct event_ht * ht, struct  event * new, unsigned key);
+inline int event_ht_insert_replace(struct event_ht * ht, struct  event * new_entry, unsigned key);
 
 /*
 * Delete the event with the key from the hash table.

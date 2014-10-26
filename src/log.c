@@ -43,7 +43,7 @@ void __log_file_print(char * filename, const char * func, int line, const char *
 	else{
 		fp = fopen(log_filename, "a+");
 	}
-		
+
 	if(fp == NULL){
 		perror("__log_file_print");
 		exit(0);

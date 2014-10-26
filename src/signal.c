@@ -48,15 +48,13 @@ static struct reactor * current_reactor;
 
 void sig_handler(int sig){
 	assert(current_reactor != NULL);
-	int n;
 	if(current_reactor == NULL){
 		LOG("current_reactor is null!!");
 		return;
 	}
 
-	n =write(current_reactor->sig_pipe[1], &sig, 1);
 
-	assert(n > 0);
+	while(write(current_reactor->sig_pipe[1], &sig, 1) != 1);
 }
 
 
@@ -141,6 +139,7 @@ int signal_internal_restore_all(struct reactor * r){
 
 	return (0);
 }
+
 int signal_internal_unregister(struct reactor * r, int sig){
 	struct signal_internal * psi;
 

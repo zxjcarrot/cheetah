@@ -149,8 +149,8 @@ void poll_destroy(struct reactor * r){
 	poll_free(r->policy_data);
 }
 
-static inline short poll_setup_mask(short flags){
-	short ret = 0;
+static inline int poll_setup_mask(short flags){
+	int ret = 0;
 	if(flags & E_READ){
 		ret |= POLLIN | POLLPRI;
 	}

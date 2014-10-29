@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS= -O2 -g -Wall -Werror
+CFLAGS= -g -O2 -Wall -Werror
 INCLUDE= cheetah
 OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o
 PROGRAM= libcheetah.so

@@ -135,8 +135,8 @@ void epoll_destroy(struct reactor * r){
 	epoll_free(r->policy_data);
 }
 
-static inline short epoll_setup_mask(short flags){
-	short ret = 0;
+static inline int epoll_setup_mask(short flags){
+	int ret = 0;
 	if(flags & E_READ){
 		ret |= EPOLLIN | EPOLLPRI;
 	}

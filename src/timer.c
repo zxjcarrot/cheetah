@@ -121,7 +121,9 @@ int timerheap_top_expired(struct reactor * r){
 	}
 
 	el_gettimeofday(&cur);
-	LOG("cur: %d, exp: %d", timer_to_ms(cur), timer_to_ms(r->pti->heap[1].expiration));
+	LOG("cur: %ld, exp: %ld, diff: %ld", timer_to_ms(cur), 
+		                                 timer_to_ms(r->pti->heap[1].expiration),
+		                                 timer_to_ms(r->pti->heap[1].expiration) - timer_to_ms(cur));
 	return timer_se(r->pti->heap[1].expiration, cur);
 }
 

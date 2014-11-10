@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "cheetah/log.h"
@@ -32,11 +33,14 @@ static int counter;
 static char log_filename[64];
 
 void __log_file_print(char * filename, const char * func, int line, const char *fmt, ...){
-	time_t t;
-	va_list list;
+	time_t        t;
+	struct tm    *now;
+	va_list       list;
+
+	time(&t);
+	now = localtime(&t);
 
 	if(++counter == 1){
-		time(&t);
 		sprintf(log_filename, "%ld.log", t);
 		fp = fopen(log_filename, "w");
 	}
@@ -48,7 +52,13 @@ void __log_file_print(char * filename, const char * func, int line, const char *
 		perror("__log_file_print");
 		exit(0);
 	}
-	fprintf(fp, "%s ", ctime(&t));
+
+	
+	
+
+	fprintf(fp, "%04d-%02d-%02d %02d:%02d:%02d ", now->tm_year + 1900,
+		        now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min,
+		        now->tm_sec);
 	fprintf(fp, "[%s]:[%s]:[line: %d]: ", filename, func, line);
 	
 	
@@ -61,11 +71,16 @@ void __log_file_print(char * filename, const char * func, int line, const char *
 }
 
 void __log_stderr_print(char * filename, const char * func, int line, const char *fmt, ...){
-	time_t t;
-	va_list list;
+	time_t        t;
+	struct tm    *now;
+	va_list       list;
 
 	time(&t);
-	fprintf(stderr, "%s ", ctime(&t));
+	now = localtime(&t);
+
+	fprintf(stderr, "%04d-%02d-%02d %02d:%02d:%02d ", now->tm_year + 1900,
+		        now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min,
+		        now->tm_sec);
 	fprintf(stderr, "[%s]:[%s]:[line %d]: ", filename, func, line);
 	
 

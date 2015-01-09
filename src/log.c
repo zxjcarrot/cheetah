@@ -32,7 +32,7 @@ static FILE * fp;
 static int counter;
 static char log_filename[64];
 
-void __log_file_print(char * filename, const char * func, int line, const char *fmt, ...){
+void log_file_print(const char * filename, const char * func, int line, const char *fmt, ...){
 	time_t        t;
 	struct tm    *now;
 	va_list       list;
@@ -70,7 +70,7 @@ void __log_file_print(char * filename, const char * func, int line, const char *
 	fclose(fp);
 }
 
-void __log_stderr_print(char * filename, const char * func, int line, const char *fmt, ...){
+void log_stderr_print(const char * filename, const char * func, int line, const char *fmt, ...){
 	time_t        t;
 	struct tm    *now;
 	va_list       list;

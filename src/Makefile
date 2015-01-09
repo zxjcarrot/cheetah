@@ -1,7 +1,7 @@
 CC= gcc
-CFLAGS= -g -Wall -Werror -fpic -DNOLOG
+CFLAGS= -g -Wall -Werror -fpic
 INCLUDE= cheetah
-OBJECTS= event.o event_ht.o list.o lock.o log.o polling_policy.o reactor.o signal.o timer.o utility.o
+OBJECTS= reactor.o event.o event_ht.o list.o lock.o log.o polling_policy.o signal.o timer.o utility.o
 PROGRAM= libcheetah.so
 LIBS= -lpthread
 LINKER_FLAGS= -fpic -shared
@@ -23,11 +23,11 @@ list.o:	$(INCLUDE)/list.h list.c
 lock.o: $(INCLUDE)/lock.h lock.c
 	$(CC) $(CFLAGS) -c lock.c
 
-log.o: 	$(INCLUDE)/log.h log.c
+log.o: $(INCLUDE)/log.h log.c
 	$(CC) $(CFLAGS) -c log.c
 
-polling_policy.o: $(INCLUDE)/polling_policy.h polling_policy.c polling_select.c polling_poll.c polling_epoll.c
-	$(CC) $(CFLAGS) -c polling_select.c polling_poll.c polling_epoll.c polling_policy.c
+polling_policy.o: $(INCLUDE)/polling_policy.h polling_policy.c
+	$(CC) $(CFLAGS) -c polling_policy.c
 
 reactor.o: $(INCLUDE)/reactor.h reactor.c
 	$(CC) $(CFLAGS) -c reactor.c

@@ -49,21 +49,21 @@ static void reactor_init_(struct reactor * r, const char * policy_name, int in_m
 * Return: the dequeued event or null if the list is empty.
 * @r: the reactor.
 */
-static inline struct event * reactor_dequeue_event(struct reactor * r);
+static struct event * reactor_dequeue_event(struct reactor * r);
 
 /*
 * Initialize signal events handling mechanism.
 * Return: 0 on success, -1 on failure.
 * @r: the related reactor.
 */
-static inline int reacotr_signal_init(struct reactor * r);
+static int reacotr_signal_init(struct reactor * r);
 
 /*
 * Initialize timer events handling mechanism.
 * Return: 0 on success, -1 on failure.
 * @r: the related reactor.
 */
-inline int reactor_timer_init(struct reactor * r);
+int reactor_timer_init(struct reactor * r);
 
 /*
 * The signal event callback used to call corresponding signal event callbacks.
@@ -113,7 +113,7 @@ static void reactor_handle_timer(struct reactor * r){
 /*
 * The default callback got called after reactor being waked up.
 */
-static inline void reactor_waked_up(el_socket_t fd, short res_flags, void *arg){
+static void reactor_waked_up(el_socket_t fd, short res_flags, void *arg){
 	//LOG("woke up.");
 	int n;
 	char buf[1024];
@@ -124,7 +124,7 @@ static inline void reactor_waked_up(el_socket_t fd, short res_flags, void *arg){
 * Wake up the polling thread.
 * @r: the reactor to wake up
 */
-inline static void reactor_wake_up(struct reactor * r){
+static void reactor_wake_up(struct reactor * r){
 	assert(r != NULL);
 
 	char octet = 0;
@@ -134,7 +134,7 @@ inline static void reactor_wake_up(struct reactor * r){
 	assert(n > 0);
 }
 
-inline void reactor_get_out(struct reactor * r){
+void reactor_get_out(struct reactor * r){
 	el_lock_lock(r->lock);
 	r->out = 1;
 	reactor_wake_up(r);
@@ -173,6 +173,7 @@ static void reactor_init_(struct reactor * r, const char * policy_name, int in_m
 		LOG_EXIT(1, "polling policy: %s is not supported.", policy_name);
 	}
 
+	LOG("using %s polling policy.", p->name);
 	/* Policy internal initialization. */
 	r->policy_data = r->policy->init(r);
 	if(r->policy_data == NULL){
@@ -215,33 +216,33 @@ static void reactor_init_(struct reactor * r, const char * policy_name, int in_m
 	}
 }
 
-inline void reactor_init(struct reactor * r, const char * policy_name){
+void reactor_init(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 0, 0, 0);
 }
-inline void reactor_init_with_mt(struct reactor * r, const char * policy_name){
+void reactor_init_with_mt(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 1, 0, 0);
 }
-inline void reactor_init_with_signal(struct reactor * r, const char * policy_name){
+void reactor_init_with_signal(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 0, 1, 0);
 }
 
-inline void reactor_init_with_timer(struct reactor * r, const char * policy_name){
+void reactor_init_with_timer(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 0, 0, 1);
 }
 
-inline void reactor_init_with_signal_timer(struct reactor * r, const char * policy_name){
+void reactor_init_with_signal_timer(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 0, 1, 1);
 }
 
-inline void reactor_init_with_mt_signal(struct reactor * r, const char * policy_name){
+void reactor_init_with_mt_signal(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 1, 1, 0);
 }
 
-inline void reactor_init_with_mt_timer(struct reactor * r, const char * policy_name){
+void reactor_init_with_mt_timer(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 1, 0, 1);
 }
 
-inline void reactor_init_with_mt_signal_timer(struct reactor * r, const char * policy_name){
+void reactor_init_with_mt_signal_timer(struct reactor * r, const char * policy_name){
 	reactor_init_(r, policy_name, 1, 1, 1);
 }
 
@@ -249,7 +250,7 @@ inline void reactor_init_with_mt_signal_timer(struct reactor * r, const char * p
 * Frees up event_list
 * @r: the reactor
 */
-static inline void reactor_free_events(struct reactor * r){
+static void reactor_free_events(struct reactor * r){
 	struct event * e = NULL;
 
 	while((e = reactor_dequeue_event(r))){
@@ -270,11 +271,11 @@ static inline void reactor_free_events(struct reactor * r){
 * Frees up event hash table
 * @r: the reactor
 */
-static inline void reactor_free_hash(struct reactor * r){
+static void reactor_free_hash(struct reactor * r){
 	event_ht_free(&r->eht);
 }
 
-inline void reactor_destroy(struct reactor * r){
+void reactor_destroy(struct reactor * r){
 	el_lock_lock(r->lock);
 	LOG("frees up event_list.");
 	//frees up event_list
@@ -316,7 +317,7 @@ inline void reactor_destroy(struct reactor * r){
 	free(r->lock);
 }
 
-static inline int reacotr_signal_init(struct reactor * r){
+static int reacotr_signal_init(struct reactor * r){
 	if((r->psi = signal_internal_init(r)) == NULL){
 		LOG_EXIT(1, "failed on signal_internal_init");
 		return (-1);
@@ -347,7 +348,7 @@ static inline int reacotr_signal_init(struct reactor * r){
 * Return: 0 on success, -1 on failure.
 * @r: the related reactor.
 */
-inline int reactor_timer_init(struct reactor * r){
+int reactor_timer_init(struct reactor * r){
 	if((r->pti = timerheap_internal_init(r)) == NULL){
 		LOG("failed on timerheap_internal_init: %s", strerror(errno));
 		return (-1);
@@ -355,7 +356,7 @@ inline int reactor_timer_init(struct reactor * r){
 	return (0);
 }
 
-inline int reactor_add_event(struct reactor * r, struct event * e){
+int reactor_add_event(struct reactor * r, struct event * e){
 	assert(r != NULL && e != NULL);
 
 	el_lock_lock(r->lock);
@@ -416,7 +417,7 @@ inline int reactor_add_event(struct reactor * r, struct event * e){
 	return (0);
 }
 
-inline int reactor_add_to_pending(struct reactor * r, struct event * e, short res_flags){
+int reactor_add_to_pending(struct reactor * r, struct event * e, short res_flags){
 	assert(r != NULL && e != NULL);
 
 	e->res_flags = res_flags;
@@ -434,7 +435,7 @@ inline int reactor_add_to_pending(struct reactor * r, struct event * e, short re
 	return (0);
 }
 
-inline int reactor_remove_event(struct reactor * r, struct event * e){
+int reactor_remove_event(struct reactor * r, struct event * e){
 	assert(r != NULL && e != NULL);
 
 	el_lock_lock(r->lock);
@@ -504,7 +505,7 @@ inline int reactor_remove_event(struct reactor * r, struct event * e){
 * Return: the dequeued event or null if the list is empty.
 * @r: the reactor.
 */
-static inline struct event * reactor_dequeue_pending(struct reactor * r){
+static struct event * reactor_dequeue_pending(struct reactor * r){
 	struct list_head * node;
 	struct event * e;
 
@@ -520,7 +521,7 @@ static inline struct event * reactor_dequeue_pending(struct reactor * r){
 	return e;
 }
 
-static inline struct event * reactor_dequeue_event(struct reactor * r){
+static struct event * reactor_dequeue_event(struct reactor * r){
 	struct list_head * node;
 	struct event * e;
 
@@ -535,13 +536,13 @@ static inline struct event * reactor_dequeue_event(struct reactor * r){
 	return e;
 }
 
-inline int reactor_event_empty(struct reactor * r){
+int reactor_event_empty(struct reactor * r){
 	assert(r != NULL);
 
 	return list_empty(&r->event_list);
 }
 
-inline void reactor_loop(struct reactor * r, struct timeval * timeout, int flags){
+void reactor_loop(struct reactor * r, struct timeval * timeout, int flags){
 	int nreadys;
 	struct timeval *pt, t;
 	struct event * e;

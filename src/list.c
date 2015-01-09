@@ -21,13 +21,13 @@
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
 #include "cheetah/list.h"
-inline void INIT_LIST_HEAD(struct list_head *list)
+void INIT_LIST_HEAD(struct list_head *list)
 {
 	list->next = list;
 	list->prev = list;
 }
 
-inline void INIT_LIST_EMPTY(struct list_head *list){
+void INIT_LIST_EMPTY(struct list_head *list){
 	list->next = list->prev = 0;
 }
 /*
@@ -36,7 +36,7 @@ inline void INIT_LIST_EMPTY(struct list_head *list){
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_add(struct list_head *new,
+static void __list_add(struct list_head *new,
 			      struct list_head *prev,
 			      struct list_head *next)
 {
@@ -54,7 +54,7 @@ static inline void __list_add(struct list_head *new,
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-inline void list_add(struct list_head *new, struct list_head *head)
+void list_add(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head, head->next);
 }
@@ -67,7 +67,7 @@ inline void list_add(struct list_head *new, struct list_head *head)
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-inline void list_add_tail(struct list_head *new, struct list_head *head)
+void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
@@ -80,7 +80,7 @@ inline void list_add_tail(struct list_head *new, struct list_head *head)
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_del(struct list_head * prev, struct list_head * next)
+static void __list_del(struct list_head * prev, struct list_head * next)
 {
 	next->prev = prev;
 	prev->next = next;
@@ -92,7 +92,7 @@ static inline void __list_del(struct list_head * prev, struct list_head * next)
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
-inline void list_del(struct list_head *entry)
+void list_del(struct list_head *entry)
 {
 	if(entry->prev == 0 || entry->next == 0)return;
 	
@@ -104,7 +104,7 @@ inline void list_del(struct list_head *entry)
  * list_empty - tests whether a list is empty
  * @head: the list to test.
  */
-inline int list_empty(const struct list_head *head)
+int list_empty(const struct list_head *head)
 {
 	return head->next == head;
 }

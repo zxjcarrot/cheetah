@@ -39,19 +39,9 @@ struct list_head{
 #define LIST_HEAD(name) \
 	struct list_head name = LIST_HEAD_INIT(name)
 
-inline void INIT_LIST_HEAD(struct list_head *list);
+void INIT_LIST_HEAD(struct list_head *list);
 
-inline void INIT_LIST_EMPTY(struct list_head *list);
-
-/**
- * list_add_tail - add a new entry
- * @new_entry: new entry to be added
- * @head: list head to add it before
- *
- * Insert a new entry before the specified head.
- * This is useful for implementing queues.
- */
-inline void list_add(struct list_head *new_entry, struct list_head *head);
+void INIT_LIST_EMPTY(struct list_head *list);
 
 /**
  * list_add_tail - add a new entry
@@ -61,7 +51,17 @@ inline void list_add(struct list_head *new_entry, struct list_head *head);
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-inline void list_add_tail(struct list_head *new_entry, struct list_head *head);
+void list_add(struct list_head *new_entry, struct list_head *head);
+
+/**
+ * list_add_tail - add a new entry
+ * @new_entry: new entry to be added
+ * @head: list head to add it before
+ *
+ * Insert a new entry before the specified head.
+ * This is useful for implementing queues.
+ */
+void list_add_tail(struct list_head *new_entry, struct list_head *head);
 
 /**
  * list_del - deletes entry from list.
@@ -69,13 +69,13 @@ inline void list_add_tail(struct list_head *new_entry, struct list_head *head);
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
-inline void list_del(struct list_head *entry);
+void list_del(struct list_head *entry);
 
 /**
  * list_empty - tests whether a list is empty
  * @head: the list to test.
  */
-inline int list_empty(const struct list_head *head);
+int list_empty(const struct list_head *head);
 /**
  * list_entry - get the struct for this entry
  * @ptr:	the &struct list_head pointer.

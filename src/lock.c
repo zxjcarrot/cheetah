@@ -23,7 +23,7 @@
 #include "cheetah/lock.h"
 #include "cheetah/log.h"
 
-inline int el_lock_init(el_lock * lock){
+int el_lock_init(el_lock * lock){
 	if(!lock)return 0;
 	#ifdef WIN32
 		return InitializeCriticalSection(lock);
@@ -32,7 +32,7 @@ inline int el_lock_init(el_lock * lock){
 	#endif
 }
 
-inline void el_lock_lock(el_lock * lock){
+void el_lock_lock(el_lock * lock){
 	if(!lock)return;
 	#ifdef WIN32
 		EnterCriticalSection(lock);
@@ -42,7 +42,7 @@ inline void el_lock_lock(el_lock * lock){
 
 }
 
-inline void el_lock_unlock(el_lock * lock){
+void el_lock_unlock(el_lock * lock){
 	if(!lock)return;
 	#ifdef WIN32
 		LeaveCriticalSection(lock);
@@ -51,7 +51,7 @@ inline void el_lock_unlock(el_lock * lock){
 	#endif
 }
 
-inline void el_lock_destroy(el_lock * lock){
+void el_lock_destroy(el_lock * lock){
 	if(!lock)return;
 	#ifdef WIN32
 		DeleeCriticalSection(lock);

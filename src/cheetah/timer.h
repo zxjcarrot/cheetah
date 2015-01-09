@@ -138,7 +138,7 @@ struct event * timerheap_pop_top(struct reactor * r);
 * @r: the reactor which handles the timer events.
 * @e: the timer event being manipulated.
 */
-inline void timerheap_reset_timer(struct reactor * r, struct event * e);
+void timerheap_reset_timer(struct reactor * r, struct event * e);
 
 /*
 * Add timer event to the timerheap.

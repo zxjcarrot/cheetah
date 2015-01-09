@@ -20,11 +20,22 @@
 * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 * DATA, OR PROFITS; OR BUSINESS INTERR
 */
+#include "cheetah/config.h"
 #include "cheetah/polling_policy.h"
+#ifdef HAVE_EPOLL
 #include "polling_epoll.c"
+#endif
+#ifdef HAVE_KQUEUE
+#include "polling_kqueue.c"
+#endif
+#ifdef HAVE_POLL
 #include "polling_poll.c"
+#endif
+#ifdef HAVE_SELECT
 #include "polling_select.c"
+#endif
 struct polling_policy polling_policies[] = {
+											#ifdef HAVE_EPOLL
 											{"epoll",
 											epoll_init,
 											epoll_add,
@@ -32,6 +43,17 @@ struct polling_policy polling_policies[] = {
 											epoll_poll,
 											epoll_destroy,
 											epoll_print},
+											#endif
+											#ifdef HAVE_KQUEUE
+											{"kqueue",
+											kqueue_init,
+											kqueue_add,
+											kqueue_del,
+											kqueue_poll,
+											kqueue_destroy,
+											kqueue_print},
+											#endif
+											#ifdef HAVE_POLL
 											{"poll",
 											poll_init,
 											poll_add,
@@ -39,6 +61,8 @@ struct polling_policy polling_policies[] = {
 											poll_poll,
 											poll_destroy,
 											poll_print},
+											#endif
+											#ifdef HAVE_SELECT
 											{"select",
 											select_init,
 											select_add,
@@ -46,5 +70,6 @@ struct polling_policy polling_policies[] = {
 											select_poll,
 											select_destroy,
 											select_print},
+											#endif
 											{NULL}
 											};

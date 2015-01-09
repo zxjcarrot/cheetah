@@ -59,28 +59,28 @@ extern "C"{
 * Return: 0 on success, -1 on failure
 * @pipe: used to return the newly created sockets
 */
-inline int el_create_pipe(el_socket_t pipe[2]);
+int el_create_pipe(el_socket_t pipe[2]);
 
 /*
 * Close a socket.
 * Return: 0 on success, -1 on failure
 * @fd: the socket file descriptor to close
 */
-inline int el_close_fd(el_socket_t fd);
+int el_close_fd(el_socket_t fd);
 
 /*
 * Get the system time and store it in the tv.
 * Return: -1 on failure, 0 on success
 * @tv: the timeval structure in which the time where be store
 */
-inline int el_gettimeofday(struct timeval * tv);
+int el_gettimeofday(struct timeval * tv);
 
 /*
 * Set the fd to nonblocking mode.
 * Return: -1 on failure, 0 on success.
 * @fd: the fd to set.
 */
-inline int el_set_nonblocking(el_socket_t fd);
+int el_set_nonblocking(el_socket_t fd);
 
 #ifdef __cplusplus
 }

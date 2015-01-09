@@ -49,14 +49,14 @@ struct event_ht{
 * Thomas Wang's hash function
 * @key: key to be hashed
 */
-inline unsigned event_ht_hash(unsigned key);
+unsigned event_ht_hash(unsigned key);
 
 /*
 * Initialize the event hash table.
 * @ht: &struct event_ht to be initialized.
 * @load_factor: the load factor we apply on the hash table.
 */
-inline int event_ht_init(struct event_ht * ht, double load_factor);
+int event_ht_init(struct event_ht * ht, double load_factor);
 
 /*
 * Insert a event into the hash table.
@@ -65,7 +65,7 @@ inline int event_ht_init(struct event_ht * ht, double load_factor);
 * @event: &struct event entry to be inserted
 * @key: hash key
 */
-inline int event_ht_insert(struct event_ht * ht, struct  event * new_entry, unsigned key);
+int event_ht_insert(struct event_ht * ht, struct  event * new_entry, unsigned key);
 
 /*
 * Insert a event into the hash table. 
@@ -74,7 +74,7 @@ inline int event_ht_insert(struct event_ht * ht, struct  event * new_entry, unsi
 * @event: &struct event entry to be inserted
 * @key: hash key
 */
-inline int event_ht_insert_replace(struct event_ht * ht, struct  event * new_entry, unsigned key);
+int event_ht_insert_replace(struct event_ht * ht, struct  event * new_entry, unsigned key);
 
 /*
 * Delete the event with the key from the hash table.
@@ -82,7 +82,7 @@ inline int event_ht_insert_replace(struct event_ht * ht, struct  event * new_ent
 * @ht: &struct event_ht from which the event will be deleted
 * @key: hash key
 */
-inline void event_ht_delete_by_key(struct event_ht * ht, unsigned key);
+void event_ht_delete_by_key(struct event_ht * ht, unsigned key);
 
 /*
 * Delete the event with the key from the hash table.
@@ -90,7 +90,7 @@ inline void event_ht_delete_by_key(struct event_ht * ht, unsigned key);
 * @ht: &struct event_ht from which the event will be deleted
 * @key: hash key
 */
-inline int event_ht_delete(struct event_ht * ht, struct  event * e);
+int event_ht_delete(struct event_ht * ht, struct  event * e);
 
 
 /*
@@ -99,13 +99,13 @@ inline int event_ht_delete(struct event_ht * ht, struct  event * e);
 * @ht: &struct event_ht from which the event will be retrieved
 * @key: hash key
 */
-inline struct event * event_ht_retrieve(struct event_ht * ht, unsigned key);
+struct event * event_ht_retrieve(struct event_ht * ht, unsigned key);
 
 /*
 * Free up the hash table.
 * @ht: the hash table
 */
-inline void event_ht_free(struct event_ht * ht);
+void event_ht_free(struct event_ht * ht);
 #ifdef __cplusplus
 }
 #endif

@@ -452,14 +452,11 @@ int reactor_remove_event(struct reactor * r, struct event * e){
 				return (-1);
 			}
 		}else{//E_TIMEOUT
-			int size = r->pti->size;
-			assert(e->timerheap_idx != E_OUT_OF_TIMERHEAP);
-			if(timerheap_remove_event(r, e) == -1){
+			if(e->timerheap_idx != E_OUT_OF_TIMERHEAP && timerheap_remove_event(r, e) == -1){
 				el_lock_unlock(r->lock);
 				LOG("failed to unregister time event");
 				return (-1);
 			}
-			assert(r->pti->size == size - 1);
 			assert(e->timerheap_idx == E_OUT_OF_TIMERHEAP);
 		}
 	}else{

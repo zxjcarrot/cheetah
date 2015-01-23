@@ -1,2 +1,4 @@
 .tag*
 *.[oa]
+*.DS_Store
+*.so

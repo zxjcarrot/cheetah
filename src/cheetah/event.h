@@ -101,6 +101,16 @@ struct event * event_new(el_socket_t fd, short ev_flags,event_callback callback,
 void event_set(struct event * e, el_socket_t fd, short ev_flags,event_callback callback, void * arg);
 
 /*
+* Modify the interested events of a event.
+* For I/O events, fd stores the file descriptor being listened.
+* For signal events, fd stores the signal number being listened.
+* For timer events, fd stores the timer interval in millisecond.
+* @e: event to modify
+* @ev_flags: new interested events bitmask
+*/
+void event_modify_events(struct event * e, short ev_flags);
+
+/*
 * Tests whether the event is in the reactor.
 * Return: 0 for false, 1 for true.
 * @e: event to test.

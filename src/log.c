@@ -52,13 +52,11 @@ void log_file_print(const char * filename, const char * func, int line, const ch
 		perror("__log_file_print");
 		exit(0);
 	}
-
 	
-	
-
-	fprintf(fp, "%04d-%02d-%02d %02d:%02d:%02d ", now->tm_year + 1900,
+	pid_t pid = getpid();
+	fprintf(fp, "%04d-%02d-%02d %02d:%02d:%02d pid %d", now->tm_year + 1900,
 		        now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min,
-		        now->tm_sec);
+		        now->tm_sec, pid);
 	fprintf(fp, "[%s]:[%s]:[line: %d]: ", filename, func, line);
 	
 	
@@ -78,9 +76,10 @@ void log_stderr_print(const char * filename, const char * func, int line, const 
 	time(&t);
 	now = localtime(&t);
 
-	fprintf(stderr, "%04d-%02d-%02d %02d:%02d:%02d ", now->tm_year + 1900,
+	pid_t pid = getpid();
+	fprintf(stderr, "%04d-%02d-%02d %02d:%02d:%02d pid %d", now->tm_year + 1900,
 		        now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min,
-		        now->tm_sec);
+		        now->tm_sec, pid);
 	fprintf(stderr, "[%s]:[%s]:[line %d]: ", filename, func, line);
 	
 

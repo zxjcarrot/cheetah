@@ -64,6 +64,12 @@ inline void event_set(struct event * e, el_socket_t fd, short ev_flags, event_ca
 	INIT_LIST_EMPTY(&e->hash_link);
 }
 
+void event_modify_events(struct event * e, short ev_flags) {
+	assert(e != NULL);
+
+	e->ev_flags = ev_flags;
+}
+
 inline int event_in_reactor(struct event * e){
 	return e->ev_flags & E_IN_REACTOR;
 }

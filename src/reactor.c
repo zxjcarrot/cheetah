@@ -100,14 +100,19 @@ static void reactor_handle_timer(struct reactor * r){
 		
 		assert(e != NULL);
 
+		if(e->ev_flags & E_ONCE && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
+			if (timerheap_remove_event(r, e)  == -1) {
+				LOG("failed to remove timer event from the heap");
+			} else {
+				e->ev_flags &= ~E_IN_REACTOR;
+			}
+		} else if(!(e->ev_flags & E_ONCE) && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
+			timerheap_reset_timer(r, e);
+		}
+
 		el_lock_unlock(r->lock);
 		e->callback(e->fd, e->res_flags, e->callback_arg);
 		el_lock_lock(r->lock);
-		if(e->ev_flags & E_ONCE && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
-			timerheap_remove_event(r, e);
-		}else if(!(e->ev_flags & E_ONCE) && e->timerheap_idx != E_OUT_OF_TIMERHEAP){
-			timerheap_reset_timer(r, e);
-		}
 	}
 }
 /*
@@ -275,13 +280,27 @@ static void reactor_free_hash(struct reactor * r){
 	event_ht_free(&r->eht);
 }
 
+void reactor_clean_events(struct reactor * r) {
+	el_lock_lock(r->lock);
+	reactor_free_events(r);
+	if (r->pti) {
+		timerheap_clean_events(r);
+	}
+	el_lock_unlock(r->lock);
+	/* remove all events except this informing pipe */
+	event_set(&r->pe, r->pipe[0], E_READ, reactor_waked_up, NULL);
+	if (reactor_add_event(r, &r->pe) == -1) {
+		LOG("failed to add informing pipe event back to reactor");
+	}
+}
+
 void reactor_destroy(struct reactor * r){
 	el_lock_lock(r->lock);
-	LOG("frees up event_list.");
+	LOG("free up event_list.");
 	//frees up event_list
 	reactor_free_events(r);
 
-	LOG("frees up hash table.");
+	LOG("free up hash table.");
 	//frees up hash table
 	reactor_free_hash(r);
 	
@@ -302,6 +321,8 @@ void reactor_destroy(struct reactor * r){
 		signal_internal_restore_all(r);
 		free(r->psi);
 		free(r->sig_pe);
+		r->psi = NULL;
+		r->sig_pe = NULL;
 	}
 	
 	//close the timer event handling stuff
@@ -309,7 +330,8 @@ void reactor_destroy(struct reactor * r){
 		el_close_fd(r->sig_pipe[0]);
 		el_close_fd(r->sig_pipe[1]);
 		timerheap_destroy(r);
-		free(r->sig_pe);
+		free(r->pti);
+		r->pti = NULL;
 	}
 	el_lock_unlock(r->lock);
 	//free up the lock
@@ -392,6 +414,7 @@ int reactor_add_event(struct reactor * r, struct event * e){
 			* This event is already in the reactor.
 			* Assume every event only can be in one reactor.
 			*/
+			LOG("event already in the reactor");
 			return (-1);
 		}
 		//LOG("Adding a event [fd %d]", e->fd);
@@ -404,6 +427,35 @@ int reactor_add_event(struct reactor * r, struct event * e){
 		list_add_tail(&e->event_link, &r->event_list);
 
 		event_ht_insert(&r->eht, e, e->fd);
+	}
+
+	e->rc = r;
+	e->ev_flags |= E_IN_REACTOR;
+
+	//The polling thread might be sleeping indefinitely, wake it up.
+	reactor_wake_up(r);
+
+	el_lock_unlock(r->lock);
+
+	return (0);
+}
+
+int reactor_modify_events(struct reactor * r, struct event * e){
+	assert(r != NULL && e != NULL);
+
+	el_lock_lock(r->lock);
+
+	if(e->ev_flags & E_SIGNAL || e->ev_flags & E_TIMEOUT){
+		LOG("Modification of signal or timer event is not supported");
+		return (-1);
+	}else{
+		//LOG("Modifying the event [fd %d]", e->fd);
+		if(r->policy->mod(r, e->fd, e->ev_flags) == -1){
+			el_lock_unlock(r->lock);
+			LOG("failed to modify the event[%d] in the reactor.", e->fd);
+			return (-1);
+		}
+		//LOG("Modifying the event [fd %d]", e->fd);
 	}
 
 	e->rc = r;
@@ -567,7 +619,8 @@ void reactor_loop(struct reactor * r, struct timeval * timeout, int flags){
 			* The timer event handling is supported,
 			* have @pt point to the smallest timeval.
 			*/
-			struct timeval * timerv = timerheap_top_timeout(r);
+			struct timeval t;
+			struct timeval * timerv = timerheap_top_timeout(r, &t);
 			if(timerv && (pt == NULL || (pt && timer_s(*timerv, *pt)))){
 				t = *timerv;
 				pt = &t;
@@ -581,8 +634,8 @@ void reactor_loop(struct reactor * r, struct timeval * timeout, int flags){
 		}
 		if(nreadys){
 			//iterate through pending events and call corresponding callbacks
-			while((e = reactor_dequeue_pending(r))){
-				if(e->callback){
+			while(!r->out && (e = reactor_dequeue_pending(r))){
+				if(e->callback && event_in_reactor(e)){
 					el_lock_unlock(r->lock);
 
 					e->callback(e->fd, e->res_flags, e->callback_arg);

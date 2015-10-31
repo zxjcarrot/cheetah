@@ -45,7 +45,10 @@ void * thread_func(void * arg){
 	sleep(10);
 	LOG("Removing the signal event");
 	reactor_remove_event(&r, &e);
+
+	return NULL;
 }
+
 int main(int argc, char const *argv[]){
 	reactor_init_with_signal(&r, NULL);
 

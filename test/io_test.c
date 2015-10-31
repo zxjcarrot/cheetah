@@ -29,10 +29,39 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "reactor.h"
+#include <cheetah/reactor.h>
+
+struct reactor r;
+struct event e;
+int p[2];
+
+void read_cb(el_socket_t fd, short res_flags, void * arg){
+    char buf[1024];
+    int n = read(fd, buf, sizeof(buf));
+    buf[n] = 0;
+    fprintf(stderr, "got: %s\n", buf);
+    fprintf(stderr, "modify to listen to write event\n");
+    event_modify_events(&e, E_WRITE);
+    if (reactor_modify_events(&r, &e) == -1) {
+        exit(-1);
+    }
+}
+
+void write_cb(el_socket_t fd, short res_flags, void * arg){
+    fprintf(stderr, "write event is fired\n");
+    reactor_get_out(&r);
+}
+
 int main(int argc, char const *argv[]){
-	struct reactor r;
-	reactor_init(&r);
-	
+    pipe(p);
+	reactor_init(&r, NULL);
+    event_set(&e, p[0], E_READ, read_cb, NULL);
+    if (reactor_add_event(&r, &e) == -1) {
+        fprintf(stderr, "failed to add event to the reactor\n");
+        exit(-1);
+    }
+    write(p[1], "0", 1);
+    reactor_loop(&r, NULL, 0);
+	reactor_destroy(&r);
 	return 0;
 }

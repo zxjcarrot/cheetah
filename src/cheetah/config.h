@@ -5,6 +5,6 @@
 
 #define HAVE_POLL
 
-#define HAVE_KQUEUE
+#define HAVE_EPOLL
 
 #endif

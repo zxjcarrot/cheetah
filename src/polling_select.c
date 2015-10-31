@@ -209,6 +209,51 @@ int select_add(struct reactor * r, el_socket_t fd, short flags){
 }
 
 /*
+* Modify the interested events of a fd.
+* Return value: 0 on success, -1 on failure.
+* @r: the reactor which uses this policy.
+* @fd: the file descriptor to listen.
+* @flags: the interested events.
+*/
+int select_mod(struct reactor * r, el_socket_t fd, short flags){
+	struct select_internal * psi;
+	assert(r != NULL);
+	if(r == NULL){
+		LOG("r is null!!");
+		return (-1);
+	}
+	LOG("Adding a event with fd %d and flags %d", fd, flags);
+
+	psi = r->policy_data;
+	if(psi == NULL){
+		LOG("pei is null!!");
+		return (-1);
+	}
+
+	if(fd > psi->maxfd){
+		LOG("fd[%d] is not in the select set", fd);
+		return (-1);
+	}
+
+	if(flags & E_READ){
+		FD_SET(fd, psi->readset_in);
+	} else {
+		FD_CLR(fd, psi->readset_in);
+	}
+
+	if(flags & E_WRITE){
+		FD_SET(fd, psi->writeset_in);
+	} else {
+		FD_CLR(fd, psi->writeset_in);
+	}
+	
+	if(flags & E_EDGE){
+		LOG("ET is not supported by select polling policy.");
+	}
+	LOG("Modified the event with fd %d and flags %d", fd, flags);
+	return (0);
+}
+/*
 * Remove the given file descriptor from the listening fd_set.
 * Return value: -1 on failure, 0 on success.
 * @r: the reactor which uses this policy.

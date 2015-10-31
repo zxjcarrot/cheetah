@@ -23,6 +23,8 @@
 #ifndef EL_SIGNAL_H_
 #define EL_SIGNAL_H_
 
+#include <signal.h>
+
 #define SIGNALN 65
 
 typedef void (* signal_handler)(int);
@@ -31,7 +33,7 @@ struct event;
 struct reactor;
 struct signal_internal{
 	/* Used to restore original signal handler */
-	signal_handler old_hanlders[SIGNALN];
+	struct sigaction old_actions[SIGNALN];
 
 	/* 
 	* Every signal only has one registered event.

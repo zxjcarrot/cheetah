@@ -121,28 +121,29 @@ int timerheap_top_expired(struct reactor * r){
 	}
 
 	el_gettimeofday(&cur);
+	/*
 	LOG("cur: %ld, exp: %ld, diff: %ld", timer_to_ms(cur), 
 		                                 timer_to_ms(r->pti->heap[1].expiration),
 		                                 timer_to_ms(r->pti->heap[1].expiration) - timer_to_ms(cur));
+    */
 	return timer_se(r->pti->heap[1].expiration, cur);
 }
 
-struct timeval * timerheap_top_timeout(struct reactor * r){
+struct timeval * timerheap_top_timeout(struct reactor * r, struct timeval * timeout){
 	struct timeval cur;
-	static struct timeval timeout;
 
 	assert(r != NULL);
 	assert(r->pti != NULL);
 	if(timerheap_empty(r->pti)){
 		return NULL;
 	}
-	timeout = r->pti->heap[1].expiration;
+	*timeout = r->pti->heap[1].expiration;
 	el_gettimeofday(&cur);
-	el_timesub(&timeout, &cur, &timeout);
-	if(timer_to_ms(timeout) < 0){
-		timeout.tv_sec = timeout.tv_usec = 0;	
+	el_timesub(timeout, &cur, timeout);
+	if(timer_to_ms(*timeout) < 0){
+		timeout->tv_sec = timeout->tv_usec = 0;	
 	}
-	return &timeout;
+	return timeout;
 }
 
 struct event * timerheap_get_top(struct reactor * r){
@@ -182,7 +183,7 @@ struct event * timerheap_pop_top(struct reactor * r){
 * alteration of the heap with the @idxth entry being the bottom entry.
 * This function is used when inserting a entry to the heap.
 * @pti: The related timerheap_internal structure.
-* @idx: The top entry's index.
+* @idx: The bottom entry's index.
 */
 static void timerheap_heapify_bottomup(struct timerheap_internal * pti, int idx){
 	int parent;
@@ -315,6 +316,11 @@ static int timerheap_free(struct timerheap_internal * pti){
 	pti->heap = NULL;
 	pti->size = pti->capacity = 0;
 
+	return (0);
+}
+
+int timerheap_clean_events(struct reactor *r){
+	while(timerheap_pop_top(r));
 	return (0);
 }
 

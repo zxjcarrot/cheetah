@@ -167,7 +167,8 @@ int kqueue_add(struct reactor * r, el_socket_t fd, short flags){
         LOG("r is null!!");
         return (-1);
     } else if(flags & E_EDGE) {
-        LOG("kqueue does not support edge-triggered mode.")
+        LOG("kqueue does not support edge-triggered mode.");
+        return (-1);
     }
 
     pki = r->policy_data;
@@ -198,6 +199,54 @@ int kqueue_add(struct reactor * r, el_socket_t fd, short flags){
     }
     //LOG("Registered fd %d for envets %d", fd, flags);
     ++pki->nevents;
+    return (0);
+}
+
+
+
+/*
+* Modify the interested events of a fd.
+* Return: 0 on success, -1 on failure.
+* @r: the reactor which uses this policy.
+* @fd: the file descriptor to listen.
+* @flags: the interested events.
+*/
+int kqueue_mod(struct reactor * r, el_socket_t fd, short flags){
+    struct kqueue_internal * pki;
+    struct kevent e;
+    int ret;
+    uintptr_t ident;
+    short filter;
+    ushort action;
+
+    assert(r != NULL);
+    if(r == NULL){
+        LOG("r is null!!");
+        return (-1);
+    } else if(flags & E_EDGE) {
+        LOG("kqueue does not support edge-triggered mode.");
+        return (-1);
+    }
+
+    pki = r->policy_data;
+    if(pki == NULL){
+        LOG("pki is null!!");
+        return (-1);
+    }
+
+    ident = fd;
+    filter = kqueue_setup_filter(flags);
+    action = EV_ADD;
+    /* EV_ADD will override the events if the fd is already registered */
+    EV_SET(&e, ident, filter, action, ((flags & E_ONCE) ? EV_ONESHOT : 0), 0, NULL);
+
+    ret = kevent(pki->kqueue_fd, &e, 1, NULL, 0, NULL);
+
+    /* Error handling*/
+    if(ret){
+        LOG("failed to modify the event: %s", strerror(errno));
+        return (-1);
+    }
     return (0);
 }
 

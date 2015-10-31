@@ -117,8 +117,9 @@ int timerheap_top_expired(struct reactor * r);
 * Get the top entry's timeout value.
 * Return: the expiration stored in timeval on success, NULL on failure(The timerheap is empty).
 * @r: the reactor which handles the timer events.
+* @timeout: the timeval struct to hold the return val
 */
-struct timeval * timerheap_top_timeout(struct reactor * r);
+struct timeval * timerheap_top_timeout(struct reactor * r, struct timeval * timeout);
 /*
 * Retrieve the top event of the timerheap.
 * Return: the top entry of the heap on success, NULL if the heap is empty.
@@ -155,6 +156,13 @@ int timerheap_add_event(struct reactor * r, struct event * e);
 * @e: the timer event to remove.
 */
 int timerheap_remove_event(struct reactor * r, struct event * e);
+
+/*
+* remove all timer events from the timerheap.
+* Return: 0 on success, -1 on failure.
+* @r: the reactor which handles the timer events.
+*/
+int timerheap_clean_events(struct reactor *r);
 
 /*
 * Free up the resources used by the timerheap and the timerheap_internal structure.

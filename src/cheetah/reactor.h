@@ -54,7 +54,7 @@ struct reactor{
 
 	/* 
 	 * Lock to avoid race conditions.
-	 * if null we assume this application is in single-threaded environment.
+	 * if null we assume this reactor is in single-threaded environment.
 	 */
 	el_lock * lock;
 
@@ -154,6 +154,14 @@ void reactor_destroy(struct reactor * r);
 int reactor_add_event(struct reactor * r, struct event * e);
 
 /*
+* modify the interested events of a event in the reactor.
+* Return: 0 on success, -1 if the event is not in the reactor.
+* @r: the reactor.
+* @e: event to be modified.
+*/
+int reactor_modify_events(struct reactor * r, struct event * e);
+
+/*
 * Add a active event to the pending list waiting for processing.
 * Return: 0 on success, -1 if the event is already in the pending list.
 * @r: the reactor.
@@ -176,6 +184,12 @@ int reactor_remove_event(struct reactor * r, struct event * e);
 */
 int reactor_event_empty(struct reactor * r);
 
+
+/*
+* Remove all events from the reactor.
+* @r: the reactor to clean
+*/
+void reactor_clean_events(struct reactor * r);
 /*
 * Start the reactor.
 * @r: the reactor to start.

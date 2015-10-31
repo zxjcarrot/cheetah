@@ -102,8 +102,18 @@ int signal_internal_register(struct reactor * r, int sig, struct event * e){
 
 	psi = r->psi;
 
-	if((psi->old_hanlders[sig] = signal(sig, sig_handler)) == SIG_ERR){
-		LOG("signal failed: %s", strerror(errno));
+	struct sigaction setup_action;
+	sigset_t block_mask;
+
+	/* block all other signal except for the one being registered */
+	sigfillset(&block_mask);
+	sigdelset(&block_mask, sig);
+	setup_action.sa_handler = sig_handler;
+	setup_action.sa_mask = block_mask;
+	setup_action.sa_flags = 0;
+
+	if(sigaction(sig, &setup_action, &psi->old_actions[sig]) == -1){
+		LOG("sigaction failed: %s", strerror(errno));
 		return (-1);
 	}
 
@@ -127,12 +137,12 @@ int signal_internal_restore_all(struct reactor * r){
 		LOG("The signal_internal hasn's been set.");
 		return (-1);
 	}
-	
+
 	psi = r->psi;
 
 	for(i = 1; i < SIGNALN; ++i){
-		if(psi->old_hanlders[i] && signal(i, psi->old_hanlders[i]) == SIG_ERR){
-			LOG("signal failed: %s", strerror(errno));
+		if(psi->sigevents[i] && sigaction(i, &psi->old_actions[i], NULL) == -1){
+			LOG("sigaction failed: %s", strerror(errno));
 		}
 		psi->sigevents[i] = NULL;
 	}
@@ -157,11 +167,15 @@ int signal_internal_unregister(struct reactor * r, int sig){
 		LOG("signal num[%d] is out of range(1-64).");
 		return (-1);
 	}
-	
 	psi = r->psi;
 
-	if(signal(sig, psi->old_hanlders[sig]) == SIG_ERR){
-		LOG("signal failed: %s", strerror(errno));
+	if (psi->sigevents[sig] == NULL) {
+		LOG("signal num[%d] is not registered on this reactor.");
+		return (-1);
+	}
+
+	if(sigaction(sig, &psi->old_actions[sig], NULL) == -1){
+		LOG("sigaction failed: %s", strerror(errno));
 		return (-1);
 	}
 

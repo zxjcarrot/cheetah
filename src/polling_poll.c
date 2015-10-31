@@ -205,6 +205,43 @@ int poll_add(struct reactor * r, el_socket_t fd, short flags){
 	return (0);
 }
 
+
+
+/*
+* Modify the events according to the flags.
+* Resize the fds if nessesary.
+* Return: 0 on success, -1 on failure.
+* @r: the reactor which uses this policy.
+* @fd: the file descriptor to listen.
+* @flags: the interested events.
+*/
+int poll_mod(struct reactor * r, el_socket_t fd, short flags){
+	struct poll_internal * ppi;
+	int i;
+	assert(r != NULL);
+	if(r == NULL){
+		LOG("r is null!!");
+		return (-1);
+	}
+
+	ppi = r->policy_data;
+	if(ppi == NULL){
+		LOG("ppi is null!!");
+		return (-1);
+	}
+
+	for(i = 0; i < ppi->n_events; ++i){
+		if(fd == ppi->fds_in[i].fd){
+			/* Override the existing event */
+			ppi->fds_in[i].events = poll_setup_mask(flags);
+			return (0);
+		}
+	}
+
+	LOG("fd[%d] is not in the poll fdset.", fd);
+	return (-1);
+}
+
 static inline void poll_swap_pollfd(struct pollfd * lhs, struct pollfd * rhs){
 	struct pollfd t;
 	t = *lhs;

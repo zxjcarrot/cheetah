@@ -226,6 +226,45 @@ int epoll_add(struct reactor * r, el_socket_t fd, short flags){
 	return (0);
 }
 
+
+/*
+* Modify the interested events of a fd.
+* Return: 0 on success, -1 on failure.
+* @r: the reactor which uses this policy.
+* @fd: the file descriptor to listen.
+* @flags: the interested events.
+*/
+int epoll_mod(struct reactor * r, el_socket_t fd, short flags){
+	struct epoll_internal * pei;
+	struct epoll_event e;
+	int ret;
+	
+	assert(r != NULL);
+	if(r == NULL){
+		LOG("r is null!!");
+		return (-1);
+	}
+
+	pei = r->policy_data;
+	if(pei == NULL){
+		LOG("pei is null!!");
+		return (-1);
+	}
+
+	e.data.fd = fd;
+	e.events = epoll_setup_mask(flags);
+	
+	ret = epoll_ctl(pei->epoll_fd, EPOLL_CTL_MOD, fd, &e);
+
+	/* Error handling*/
+	if(ret){
+		epoll_print_error(pei, fd);
+		return (-1);
+	}
+
+	return (0);
+}
+
 /*
 * Unregister the given file descriptor with this epoll instance.
 * Return: -1 on failure, 0 on success.

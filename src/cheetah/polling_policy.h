@@ -44,10 +44,19 @@ struct polling_policy{
 	* Add a fd to this polling policy.
 	* Return: -1 on failure, 0 on success
 	* @r: the reactor uses this policy.
-	* @fd: the fd to listen.
+	* @fd: the fd to add.
 	* @flags: the events interested.
 	*/
 	int 	(*add)(struct reactor * r, el_socket_t fd, short flags);
+
+	/* 
+	* Modify the interested events of a fd.
+	* Return: -1 on failure, 0 on success
+	* @r: the reactor uses this policy.
+	* @fd: the fd to add.
+	* @flags: the events interested.
+	*/
+	int 	(*mod)(struct reactor * r, el_socket_t fd, short flags);
 
 	/* 
 	* Delete a fd from this polling policy.
